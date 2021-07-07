@@ -8,8 +8,9 @@ create table Puzzle (
 	width int not null,
 	height int not null,
 	sourceLink nvarchar(2047),
-	puzLink nvarchar(2047),
-	puzData varbinary(128000),
+	sourcePuzLink nvarchar(2047),
+	storedPuzLink nvarchar(2047),
+	puzData varbinary(max)
 );
 
 create table Puzzle_Tag (
@@ -23,7 +24,7 @@ create table Author (
 );
 
 insert into Author([name]) values
-("Brendan Emmett Quigley", "Tim Croce");
+('Brendan Emmett Quigley'), ('Tim Croce');
 
 create table Puzzle_Author (
 	puzzleId varchar(11) not null,
@@ -101,10 +102,8 @@ create table EntrySource_Entry (
 	primary key(entrySourceId, entry)
 );
 
--- Entry Sources:
--- Manual Entry 1
--- Curated Broda 2
--- Ginsberg Clues 3
+insert into Entry_Source ([name])
+values ('Puzzle'), ('Manual Entry'), ('Curated Broda'), ('Ginsberg Clues');
 
 -- Quality Scale
 -- NotAThing 0

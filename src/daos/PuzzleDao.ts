@@ -26,7 +26,11 @@ class PuzzleDao implements IPuzzleDao {
     }
 
     addPuzzles = async (puzzles: Puzzle[]) => {
-        return "Done";
+        // add puzzle rows
+
+        // add author rows
+
+        // add entries and clues
     }
 }
 
