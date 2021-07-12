@@ -13,7 +13,8 @@ export interface Puzzle {
     date?: Date;
     publication?: string;
     sourceLink?: string;
-    puzLink?: string;
+    sourcePuzLink?: string;
+    storedPuzLink?: string;
 
     grid: Square[][];
     entries: Map<string, PuzzleEntry>;

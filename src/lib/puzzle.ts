@@ -7,8 +7,8 @@ export function newPuzzle(width: number, height: number): Puzzle {
         title: "",
         authors: [],
         copyright: "",
-        width: 0,
-        height: 0,
+        width: width,
+        height: height,
     
         grid: newGrid(width, height),
         entries: new Map<string, PuzzleEntry>(),

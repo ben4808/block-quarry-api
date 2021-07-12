@@ -8,3 +8,6 @@ const port = Number(process.env.PORT || 3000);
 app.listen(port, () => {
     logger.info('Express server started on port: ' + port);
 });
+
+// http://localhost:3000/api/scrape?source=Tim_Croce&startUrl=https://club72.wordpress.com/&endDate=07-01-2021
+// http://localhost:3000/api/scrape?source=Tim_Croce&startUrl=https://club72.wordpress.com/page/69&endDate=07-01-2009

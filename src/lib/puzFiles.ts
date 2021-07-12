@@ -4,12 +4,13 @@ import { PuzzleEntry } from "../models/PuzzleEntry";
 import { numberizeGrid } from "./grid";
 import { newPuzzle } from "./puzzle";
 import { deepClone, mapKeys } from "./utils";
+import fetch from 'node-fetch';
 
 // https://code.google.com/archive/p/puz/wikis/FileFormat.wiki
 
 export async function loadPuzFile(url: string, callbacks?: PuzFileCallbacks): Promise<Puzzle | undefined> {
     let response = await fetch(url);
-    let data: Blob = await response.blob();
+    let data: any = await response.blob();
 
     return processPuzData(data, callbacks);
 }

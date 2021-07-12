@@ -5,7 +5,7 @@ import { getScraperFunction } from 'src/sources/sources';
 
 export async function scrapePuzzles(req: Request, res: Response) {
     let puzSource = req.query.source! as string;
-    let endDate = new Date(req.query.endDate!.toString());
+    let endDate = req.query.endDate ? new Date(req.query.endDate!.toString()) : new Date();
     let startUrl = req.query.startUrl as string | undefined;
 
     let puzzleDao = new PuzzleDao();
@@ -14,7 +14,10 @@ export async function scrapePuzzles(req: Request, res: Response) {
         let scraperFunc = getScraperFunction(puzSource);
         let puzzles = await scraperFunc(endDate, startUrl);
 
-        puzzleDao.addPuzzles(puzzles);
+        for (let puzzle of puzzles) {
+           await puzzleDao.addPuzzle(puzzle);
+        }
+        
         return res.status(StatusCodes.OK).json("{'message': 'Success'}");
     }
     catch(ex) {

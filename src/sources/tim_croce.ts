@@ -1,10 +1,11 @@
 import { Puzzle } from "@entities/Puzzle";
 import { loadPuzFile } from "@shared/puzFiles";
-import { getHtmlPage } from "./utils";
+import { downloadFile, getDatePrefixString, getHtmlPage } from "./utils";
 
 export async function scrapeTimCroce(endDate: Date, startUrl?: string): Promise<Puzzle[]> {
     let puzzles = [] as Puzzle[];
-    let curPage = startUrl ? +startUrl.match("\/page\/(\d+)")![1] : 1;
+    let pageMatch = startUrl?.match(/\/page\/(\d+)/);
+    let curPage = pageMatch ? +pageMatch![1] : 1;
     
     while(true) {
         let html = await getHtmlPage(`https://club72.wordpress.com/page/${curPage}`);
@@ -20,23 +21,33 @@ export async function scrapeTimCroce(endDate: Date, startUrl?: string): Promise<
                 foundEnd = true;
                 break;
             }
-            let puzLink = post.querySelector('a[href*=".puz"]').getAttribute("href")!;
+            let puzLinks = post.querySelectorAll('a[href*=".puz"]');
+            for (let i = 0; i < puzLinks.length && i < 2; i++) {
+                let puzLink = puzLinks[i].getAttribute("href")!;
+                if (puzLink.endsWith("0")) puzLink = puzLink.substring(0, puzLink.length-1) + "1";
 
-            let callbacks = {
-                authorFunc: (puzAuthor: string) => {
-                    return [puzAuthor.replace(", club72.wordpress.com", "")];
-                },
+                let callbacks = {
+                    authorFunc: (puzAuthor: string) => {
+                        return [puzAuthor.replace(", club72.wordpress.com", "").replace(", club72.wordpress,com", "")];
+                    },
+                }
+    
+                let puzzle = (await loadPuzFile(puzLink, callbacks))!;
+                puzzle.date = date;
+                puzzle.publication = "Club 72 by Tim Croce";
+                puzzle.sourcePuzLink = puzLink;
+                let puzFilename = puzLink.replace(/.*\//, "").replace(/\?.*/, "");
+                let downloadFilename = `${getDatePrefixString(date)}-${puzFilename}`;
+                puzzle.storedPuzLink = `C:\\Users\\ben_z\\Documents\\bq_puzzles\\Tim_Croce\\${downloadFilename}`;
+                puzzle.sourceLink = blogPostLink;
+                puzzles.push(puzzle);
+    
+                await downloadFile(puzLink, puzzle.storedPuzLink);
             }
-
-            let puzzle = (await loadPuzFile(puzLink, callbacks))!;
-            puzzle.date = date;
-            puzzle.publication = "Club 72 by Tim Croce";
-            puzzle.puzLink = puzLink;
-            puzzle.sourceLink = blogPostLink;
-            puzzles.push(puzzle);
         }
 
         if (foundEnd) break;
+        curPage++;
     }
     
     return puzzles;

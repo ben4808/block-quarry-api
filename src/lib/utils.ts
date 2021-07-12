@@ -34,3 +34,7 @@ export function mapKeys<TKey, TVal>(map: Map<TKey, TVal>): TKey[] {
 export function mapValues<TKey, TVal>(map: Map<TKey, TVal>): TVal[] {
     return Array.from(map.values()) || [];
 }
+
+export function getRandomInt(max: number) {
+    return Math.floor(Math.random() * max);
+}

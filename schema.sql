@@ -1,7 +1,7 @@
 create table Puzzle (
 	id varchar(11) not null primary key,
 	[date] datetime not null,
-	publicationId nvarchar(255),
+	publicationId nvarchar(127),
 	title nvarchar(255) not null,
 	copyright nvarchar(255),
 	notes nvarchar(255),
@@ -20,7 +20,7 @@ create table Puzzle_Tag (
 );
 	
 create table Author (
-	[name] nvarchar(255) not null primary key
+	[name] nvarchar(127) not null primary key
 );
 
 insert into Author([name]) values
@@ -28,39 +28,39 @@ insert into Author([name]) values
 
 create table Puzzle_Author (
 	puzzleId varchar(11) not null,
-	authorId nvarchar(255) not null,
+	authorId nvarchar(127) not null,
 	primary key(puzzleId, authorId)
 );
 
 create table Publication (
-	[name] nvarchar(255) not null primary key
+	[name] nvarchar(127) not null primary key
 );	
 
 insert into Publication ([name]) values
 ('New York Times'), ('Brendan Emmett Quigley'), ('Club 72 by Tim Croce');
 
-create table Entry (
-	[entry] nvarchar(255) not null primary key,
-	[raw] nvarchar(255),
+create table [Entry] (
+	[entry] nvarchar(127) not null primary key,
+	[raw] nvarchar(127),
 	[source] int,
-	finder nvarchar(255),
+	finder nvarchar(127),
 	debutPuzzle varchar(11),
 	qualityScore float,
 	obscurityScore float
 );
 
 create table Entry_Tag (
-	[entry] nvarchar(255) not null,
+	[entry] nvarchar(127) not null,
 	tag nvarchar(63) not null,
 	primary key (entry, tag)
 );
 
 create table Clue (
 	id varchar(11) not null primary key,
-	[entry] nvarchar(255) not null,
+	[entry] nvarchar(127) not null,
 	clue nvarchar(2047) not null,
 	debutPuzzle varchar(11),
-	author nvarchar(255),
+	author nvarchar(127),
 	qualityScore float,
 	obscurityScore float
 );
@@ -73,8 +73,8 @@ create table Puzzle_Clue (
 );
 
 create table Entry_Score (
-	[entry] nvarchar(255) not null,
-	username nvarchar(255) not null,
+	[entry] nvarchar(127) not null,
+	username nvarchar(127) not null,
 	qualityScore int not null,
 	obscurityScore int not null,
 	primary key(entry, username)
@@ -82,7 +82,7 @@ create table Entry_Score (
 
 create table Clue_Score (
 	clueId varchar(11) not null,
-	username nvarchar(255) not null,
+	username nvarchar(127) not null,
 	qualityScore int not null,
 	obscurityScore int not null,
 	primary key(clueId, username)
@@ -90,13 +90,13 @@ create table Clue_Score (
 
 create table Entry_Source (
 	id int not null primary key identity(1, 1),
-	name nvarchar(255) not null,
+	name nvarchar(127) not null,
 );
 
 create table EntrySource_Entry (
 	entrySourceId int not null,
-	[entry] nvarchar(255) not null,
-	[raw] nvarchar(255),
+	[entry] nvarchar(127) not null,
+	[raw] nvarchar(127),
 	picked bit not null default 0,
 	[views] int not null,
 	primary key(entrySourceId, entry)

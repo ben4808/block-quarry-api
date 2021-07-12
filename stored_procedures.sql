@@ -7,14 +7,16 @@ GO
 
 CREATE TYPE EntryType AS TABLE 
 (
+	[clueId] varchar(11),
 	[index] varchar(10),
-	[entry] nvarchar(255),
-	[clue] nvarchar(255),
+	[entry] nvarchar(127),
+	[clue] nvarchar(2047),
     PRIMARY KEY ([index])
 )
 GO
 
-CREATE PROCEDURE AddPuzzle
+CREATE PROCEDURE [dbo].[AddPuzzle]
+	@puzzleId varchar(11),
 	@date datetime,
 	@publicationId nvarchar(255),
 	@title nvarchar(255),
@@ -28,7 +30,11 @@ CREATE PROCEDURE AddPuzzle
 	@puzData varbinary(max)
 AS
 BEGIN
+	if not exists(select 1 from Puzzle where publicationId = @publicationId and title = @title)
+	begin
+
 	INSERT INTO [Puzzle] (
+		id,
         [date],
 		publicationId,
 		title,
@@ -41,9 +47,9 @@ BEGIN
 		storedPuzLink,
 		puzData
 	 )
-     VALUES
-           (
-           @date
+     values(
+		   @puzzleId
+           ,@date
            ,@publicationId
            ,@title
            ,@copyright
@@ -54,7 +60,8 @@ BEGIN
            ,@sourcePuzLink
 		   ,@storedPuzLink
            ,@puzData
-	);
+		   )
+	end
 END
 GO
 
@@ -65,7 +72,7 @@ AS
 BEGIN
 	insert into Author ([name])
 	select a.Str1 from @Authors a
-	where not exists(select [name] from Authors au where au.[name] = a.Str1);
+	where not exists(select [name] from Author au where au.[name] = a.Str1);
 
 	insert into Puzzle_Author(puzzleId, authorId)
 	select @PuzzleId, a.Str1 from @Authors a;
@@ -77,14 +84,15 @@ CREATE PROCEDURE AddEntriesAndClues
 	@Entries dbo.EntryType readonly
 AS
 BEGIN
-	declare @Author as nvarchar(255);
-	set @Author = select top 1 authorId from Puzzle_Author where puzzleId = @PuzzleId;
+	insert into [Entry] ([entry], [raw], [source], debutPuzzle)
+	select et.[entry], et.[entry], 1, @PuzzleId from @Entries et
+	where not exists(select 1 from [Entry] where [entry] = et.[entry]);
 
-	insert into [Entry] ([entry], [raw], [source], finder, debutPuzzle)
-	select et.[entry], et.[entry], 1, @Author, @PuzzleId from @Entries et
-	where not exists(select 1 from [Entry] where [entry] = et.[entry]); 
+	insert into Clue (id, [entry], clue, debutPuzzle)
+	select et.clueId, et.[entry], et.clue, @PuzzleId from @Entries et
+	where not exists(select 1 from Clue where [entry] = et.[entry] and clue = et.clue);
 
-	insert into Clue (id, [entry], clue, debutPuzzle, author)
-	select et.
+	insert into Puzzle_Clue(puzzleId, clueId, [index])
+	select @PuzzleId, et.clueId, et.[index] from @Entries et;
 END
 GO

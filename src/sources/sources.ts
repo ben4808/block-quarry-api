@@ -3,7 +3,7 @@ import { scrapeTimCroce } from "./tim_croce";
 
 export function getScraperFunction(source: string): (endDate: Date, startUrl?: string) => Promise<Puzzle[]> {
     switch(source) {
-        case "Tim Croce":
+        case "Tim_Croce":
             return scrapeTimCroce;
     }
 
