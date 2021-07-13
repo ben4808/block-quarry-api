@@ -28,7 +28,16 @@ export async function scrapeTimCroce(endDate: Date, startUrl?: string): Promise<
 
                 let callbacks = {
                     authorFunc: (puzAuthor: string) => {
-                        return [puzAuthor.replace(", club72.wordpress.com", "").replace(", club72.wordpress,com", "")];
+                        let authors = [];
+                        let tokens = puzAuthor.split(/\&|\,|and/);
+                        if(tokens.length > 1) {
+                            authors = tokens.map(t => t.trim());
+                        }
+                        else {
+                            authors = [puzAuthor.trim()];
+                        }
+                        return authors.map(author => 
+                            author.replace(", club72.wordpress.com", "").replace(", club72.wordpress,com", ""));
                     },
                 }
     

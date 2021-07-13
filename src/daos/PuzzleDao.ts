@@ -39,6 +39,7 @@ class PuzzleDao implements IPuzzleDao {
         let puzzleId = generateId();
 
         let buffer = puzzle.puzData ? Buffer.from(await puzzle.puzData.arrayBuffer()) : undefined;
+        if (buffer && buffer.length > 8000) buffer = undefined;
 
         // add puzzle rows
         await sqlQuery(true, "AddPuzzle", [

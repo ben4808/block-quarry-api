@@ -84,9 +84,24 @@ CREATE PROCEDURE AddEntriesAndClues
 	@Entries dbo.EntryType readonly
 AS
 BEGIN
+	declare @PuzzleDate datetime;
+	select @PuzzleDate = [date] from Puzzle where id = @PuzzleId;
+
+	update en set debutPuzzle = @PuzzleId
+	from [Entry] en
+	inner join @Entries et on et.[entry] = en.[entry]
+	inner join Puzzle curDebut on curDebut.id = en.debutPuzzle
+	where en.debutPuzzle is null or curDebut.date > @PuzzleDate;
+
 	insert into [Entry] ([entry], [raw], [source], debutPuzzle)
 	select et.[entry], et.[entry], 1, @PuzzleId from @Entries et
 	where not exists(select 1 from [Entry] where [entry] = et.[entry]);
+
+	update [Clue] set debutPuzzle = @PuzzleId
+	from Clue cl
+	inner join @Entries et on et.[entry] = cl.[entry] and et.clue = cl.clue
+	inner join Puzzle curDebut on curDebut.id = cl.debutPuzzle
+	where cl.debutPuzzle is null or curDebut.date > @PuzzleDate;
 
 	insert into Clue (id, [entry], clue, debutPuzzle)
 	select et.clueId, et.[entry], et.clue, @PuzzleId from @Entries et
