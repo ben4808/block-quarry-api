@@ -94,7 +94,7 @@ BEGIN
 	where en.debutPuzzle is null or curDebut.date > @PuzzleDate;
 
 	insert into [Entry] ([entry], [raw], [source], debutPuzzle)
-	select et.[entry], et.[entry], 1, @PuzzleId from @Entries et
+	select distinct et.[entry], et.[entry], 1, @PuzzleId from @Entries et
 	where not exists(select 1 from [Entry] where [entry] = et.[entry]);
 
 	update [Clue] set debutPuzzle = @PuzzleId
