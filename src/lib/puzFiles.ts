@@ -101,7 +101,7 @@ export async function processPuzData(data: Blob, callbacks?: PuzFileCallbacks): 
                 let puzEntry = {
                     index: key,
                     entry: entry,
-                    clue: clue,
+                    clue: clue.substring(0, 800),
                 } as PuzzleEntry;
                 puzzle.entries.set(key, puzEntry);
             }

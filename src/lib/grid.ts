@@ -20,10 +20,10 @@ export function numberizeGrid(grid: Square[][]) {
 
             let isAcrossStart = isLeftBlocked && !isRightBlocked;
             let isDownStart = isAboveBlocked && !isBelowBlocked;
-            let isIsolatedSquare = isLeftBlocked && isRightBlocked && isAboveBlocked && isBelowBlocked;
+            //let isIsolatedSquare = isLeftBlocked && isRightBlocked && isAboveBlocked && isBelowBlocked;
 
-            if (isAcrossStart || isDownStart || isIsolatedSquare) sq.number = currentNumber++;
-            if (isAcrossStart || isIsolatedSquare) sq.directions.push("A");
+            if (isAcrossStart || isDownStart) sq.number = currentNumber++;
+            if (isAcrossStart) sq.directions.push("A");
             if (isDownStart) sq.directions.push("D");
         }
     }

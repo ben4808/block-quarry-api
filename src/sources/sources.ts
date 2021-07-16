@@ -1,6 +1,7 @@
 import { Puzzle } from "@entities/Puzzle";
 import { scrapeAndyKravis } from "./andy_kravis";
 import { scrapeBEQ } from "./beq";
+import { scrapeCrosshareFeatured, scrapeCrosshareMinis } from "./crosshare";
 import { scrapeErikAgard } from "./erik_agard";
 import { scrapeJonesin } from "./jonesin";
 import { scrapeTimCroce } from "./tim_croce";
@@ -20,6 +21,10 @@ export function getScraperFunction(source: string): (endDate: Date, startUrl?: s
             return scrapeWillNediger;
         case "Jonesin":
             return scrapeJonesin;
+        case "Crosshare":
+            return scrapeCrosshareFeatured;
+        case "Crosshare_Minis":
+            return scrapeCrosshareMinis;
     }
 
     throw new Error("Invalid scraper string.");
