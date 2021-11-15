@@ -1,3 +1,5 @@
+import { Entry } from "@entities/Entry";
+
 // https://stackoverflow.com/questions/38416020/deep-copy-in-es6-using-the-spread-syntax
 export function deepClone(obj: any): any {
     if(typeof obj !== 'object' || obj === null) {
@@ -37,4 +39,22 @@ export function mapValues<TKey, TVal>(map: Map<TKey, TVal>): TVal[] {
 
 export function getRandomInt(max: number) {
     return Math.floor(Math.random() * max);
+}
+
+export function getEntryScoreForDict(dictScore: number): number {
+    if (dictScore === 0) return 0;
+    return (dictScore / 25) + 1;
+}
+
+export function getEntryScoreForDictAlt(dictScore: number): number {
+    if (dictScore <= 40) return 2;
+    return 3;
+}
+
+export function getDictScoreForEntry(entry: Entry): number {
+    if (!entry.qualityScore || !entry.obscurityScore) return 0;
+    let quality = entry.qualityScore ? (entry.qualityScore - 1)*25 : 25;
+    let obscurity = entry.obscurityScore ? (entry.obscurityScore - 1)*25 : 25;
+    let finalScore = (2*quality + obscurity) / 3;
+    return Math.round(finalScore);
 }

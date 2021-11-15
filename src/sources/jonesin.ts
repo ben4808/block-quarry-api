@@ -29,3 +29,5 @@ export async function scrapeJonesin(endDate: Date, startUrl?: string): Promise<P
     
     return puzzles;
 }
+
+// http://herbach.dnsalias.com/Jonesin/jz210928.puz

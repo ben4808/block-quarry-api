@@ -1,6 +1,7 @@
 import './pre-start'; // Must be the first import
 import app from '@server';
 import logger from 'src/lib/Logger';
+import { processSpanishVectors } from '@shared/spanish';
 // import { rectifyWordLists } from '@shared/rectifyWordLists';
 
 // rectifyWordLists([
@@ -11,6 +12,11 @@ import logger from 'src/lib/Logger';
 // ).then(() => {
 //     console.log("Done.");
 // });
+
+// processSpanishVectors("C:\\Users\\ben_z\\Desktop\\entriesData\\spanish_vectors.txt",
+// "C:\\Users\\ben_z\\Downloads\\processedSpanish.dict").then(() => {
+//   console.log("Done.");
+//   });
 
 // Start the server
 const port = Number(process.env.PORT || 3000);
@@ -27,29 +33,4 @@ app.listen(port, () => {
 // http://localhost:3000/api/scrape?source=Crosshare&startUrl=https://crosshare.org&endDate=07/01/2021
 // http://localhost:3000/api/scrape?source=Crosshare_Minis&startUrl=https://crosshare.org/dailyminis/2021/7&endDate=07/01/2021
 
-  [
-    {
-      vesselKey: 'session-status-ui',
-      cargo: {
-        local: 'http://url_to_local_ssui',
-        cloud: 'http://url_to_develop_ssui'
-      }
-    },
-    {
-        vesselKey: 'policy-tech',
-        cargo: {
-          local: {
-              baseUrl: 'http://pt.base.local',
-              awsAccessKey: 'abcd1234',
-              awsSecretKey: 'abcd1234',
-              awsRegion: 'us-somewhere'
-          },
-          cloud: {
-            baseUrl: 'http://pt.base.cloud',
-            awsAccessKey: 'abcd1234',
-            awsSecretKey: 'abcd1234',
-            awsRegion: 'us-somewhere'
-          },
-        }
-      },
-  ];
+// http://localhost:3000/api/loadExplored
