@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { discoveredQuery, discoverEntries, frontierQuery } from './BlockQuarry';
 import { loadExplored, loadPodcasts } from './Data';
 import { getPuzzlesByAuthor, getPuzzlesByPublication, getPuzzlesOfWeek } from './Puzzles';
 import { scrapePuzzles } from './Scrapers';
@@ -15,6 +16,11 @@ apiRouter.get('/loadDataSource', loadPodcasts);
 apiRouter.get('/puzzlesOfWeek', getPuzzlesOfWeek);
 apiRouter.get('/puzzlesByAuthor', getPuzzlesByAuthor);
 apiRouter.get('/puzzlesByPublication', getPuzzlesByPublication);
+
+// Block Quarry routes
+apiRouter.get('/discoveredQuery', discoveredQuery);
+apiRouter.get('/frontierQuery', frontierQuery);
+apiRouter.post('/discoverEntries', discoverEntries);
 
 // Export the base-router
 const baseRouter = Router();

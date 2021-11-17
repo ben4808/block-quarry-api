@@ -85,3 +85,132 @@ BEGIN
     EXECUTE sp_executesql @Query, N'@Entries dbo.DataSourceType readonly', @Entries=@Entries;
 END
 GO
+
+CREATE PROCEDURE ExploredQuery
+    @Query nvarchar(127),
+    @UserId nvarchar(127)
+AS
+BEGIN
+    declare @Conds nvarchar(1024);
+    select @Conds = stuff((
+	select
+        case
+            when substring(a.b, n.Number, 1) = '.' then ''
+            else concat(' and col', cast(n.Number as varchar), '=''', substring(a.b, n.Number, 1), '''')
+        end
+    from (select @Query b) a
+    join Numbers n on n.number <= len(a.b)
+    FOR XML PATH('')
+	), 1, 1, '');
+
+    declare @Q nvarchar(max);
+    select @Q = '
+    select [entry], displayText, 
+    coalesce(ed.qualityScore, qualityScore) as qualityScore, 
+    coalesce(ed.obscurityScore, obscurityScore) as obscurityScore
+    from Explored
+    left join Edits ed on ed.[entry] = [entry] and ed.userId = @UserId
+    where [length] = len(@Query)
+    ' + @Conds;
+
+    EXECUTE sp_executesql @Q, N'@Query nvarchar(127), @UserId nvarchar(127)', @Query=@Query, @UserId=@UserId;
+END
+GO
+
+CREATE PROCEDURE FrontierQuery
+    @Query nvarchar(127),
+    @DataSource nvarchar(127),
+    @Page int
+AS
+BEGIN
+    declare @Conds nvarchar(1024);
+    select @Conds = ' and entry like ''' + stuff((
+	select
+        case
+            when substring(a.b, n.Number, 1) = '.' then '_'
+            else substring(a.b, n.Number, 1)
+        end
+    from (select @Query b) a
+    join Numbers n on n.number <= len(a.b)
+    FOR XML PATH('')
+	), 1, 1, '') + '''';
+
+    declare @Q nvarchar(max);
+    select @Q = '
+    from @DataSource
+    where [length] = len(@Query)
+    ' + @Conds
+    + ' order by dataSourceScore desc
+    OFFSET (@Page * 100) ROWS FETCH NEXT 100 ROWS ONLY';
+
+	declare @Q1 nvarchar(max) = concat('update @DataSource set [views] = [views] + 1 ', @Q);
+	declare @Q2 nvarchar(max) = concat('select [entry], displayText, dataSourceScore, [views]-1 as [views] ', @Q);
+
+    EXECUTE sp_executesql @Q1, N'@Query nvarchar(127), @DataSource nvarchar(127), @Page int',
+        @Query=@Query, @DataSource=@DataSource, @Page=@Page;
+
+    EXECUTE sp_executesql @Q2, N'@Query nvarchar(127), @DataSource nvarchar(127), @Page int',
+        @Query=@Query, @DataSource=@DataSource, @Page=@Page;
+END
+GO
+
+CREATE PROCEDURE DiscoverEntries
+    @UserId nvarchar(127),
+    @Entries dbo.ExploredType readonly
+AS
+BEGIN
+    insert into Explored ([entry], displayText, qualityScore, obscurityScore, [length],
+    col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15)
+    select distinct 
+        et.[entry], 
+        et.[displayText], 
+        et.qualityScore,
+        et.obscurityScore,
+        len(et.[entry]),
+        substring(et.entry, 1, 1),
+        substring(et.entry, 2, 1),
+        substring(et.entry, 3, 1),
+        substring(et.entry, 4, 1),
+        substring(et.entry, 5, 1),
+        substring(et.entry, 6, 1),
+        substring(et.entry, 7, 1),
+        substring(et.entry, 8, 1),
+        substring(et.entry, 9, 1),
+        substring(et.entry, 10, 1),
+        substring(et.entry, 11, 1),
+        substring(et.entry, 12, 1),
+        substring(et.entry, 13, 1),
+        substring(et.entry, 14, 1),
+        substring(et.entry, 15, 1)
+        from @Entries et
+	where not exists(select 1 from Explored where [entry] = et.[entry]);
+
+    update ed set [displayText] = et.displayText, qualityScore = et.qualityScore, obscurityScore = et.obscurityScore
+    from Edits ed
+    inner join @Entries et on et.[entry] = ed.[entry] 
+	where ed.UserId = @UserId;
+
+    insert into Edits ([entry], userId, displayText, qualityScore, obscurityScore)
+    select
+        et.[entry],
+        @UserId,
+        et.displayText,
+        et.qualityScore,
+        et.obscurityScore
+    from @Entries et
+    where not exists(select 1 from Edits where [entry] = et.[entry] and UserId = @UserId);
+
+    update ex set
+        qualityScore = calc.qualityScore,
+        obscurityScore = calc.obscurityScore
+    from Explored ex
+    inner join @Entries et on et.[entry] = ex.[entry]
+    inner join (
+        select ed.[entry],
+        avg(ed.qualityScore) as qualityScore,
+        avg(ed.obscurityScore) as obscurityScore
+        from Edits ed
+        group by ed.[entry]
+    ) calc on calc.[entry] = ex.[entry];
+END
+GO
