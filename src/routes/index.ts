@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { discoveredQuery, discoverEntries, frontierQuery } from './BlockQuarry';
+import { discoverEntries, exploredQuery, frontierQuery } from './BlockQuarry';
 import { loadExplored, loadPodcasts } from './Data';
 import { getPuzzlesByAuthor, getPuzzlesByPublication, getPuzzlesOfWeek } from './Puzzles';
 import { scrapePuzzles } from './Scrapers';
@@ -18,7 +18,7 @@ apiRouter.get('/puzzlesByAuthor', getPuzzlesByAuthor);
 apiRouter.get('/puzzlesByPublication', getPuzzlesByPublication);
 
 // Block Quarry routes
-apiRouter.get('/discoveredQuery', discoveredQuery);
+apiRouter.get('/exploredQuery', exploredQuery);
 apiRouter.get('/frontierQuery', frontierQuery);
 apiRouter.post('/discoverEntries', discoverEntries);
 

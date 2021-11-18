@@ -19,7 +19,7 @@ import { processSpanishVectors } from '@shared/spanish';
 //   });
 
 // Start the server
-const port = Number(process.env.PORT || 3000);
+const port = 3001;
 app.listen(port, () => {
     logger.info('Express server started on port: ' + port);
 });
@@ -34,3 +34,5 @@ app.listen(port, () => {
 // http://localhost:3000/api/scrape?source=Crosshare_Minis&startUrl=https://crosshare.org/dailyminis/2021/7&endDate=07/01/2021
 
 // http://localhost:3000/api/loadExplored
+// http://localhost:3001/api/exploredQuery?query=p.w.r...
+// http://localhost:3001/api/frontierQuery?query=p.w.r...&dataSource=Podcasts&page=1

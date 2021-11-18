@@ -58,3 +58,12 @@ export function getDictScoreForEntry(entry: Entry): number {
     let finalScore = (2*quality + obscurity) / 3;
     return Math.round(finalScore);
 }
+
+export function generateId(): string {
+    let charPool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-';
+    let id = "";
+    for (let i=0; i<11; i++) {
+        id += charPool[getRandomInt(64)];
+    }
+    return id;
+}

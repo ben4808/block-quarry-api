@@ -3,15 +3,15 @@ import { TYPES } from "tedious";
 import { sqlQuery } from "./sqlServer";
 
 export interface IBlockQuarryDao {
-    discoveredQuery: (query: string, userId: string) => Promise<Entry[]>;
+    exploredQuery: (query: string, userId: string) => Promise<Entry[]>;
     frontierQuery: (query: string, dataSource: string, page: string) => Promise<Entry[]>;
     discoverEntries: (userId: string, entries: Entry[]) => Promise<string>;
 }
 
 class BlockQuarryDao implements IBlockQuarryDao {
-    discoveredQuery = async (query: string, userId: string) => {
+    exploredQuery = async (query: string, userId: string) => {
 
-        let results = await sqlQuery(true, "DiscoveredQuery", [
+        let results = await sqlQuery(true, "ExploredQuery", [
             {name: "Query", type: TYPES.NVarChar, value: query},
             {name: "UserId", type: TYPES.NVarChar, value: userId},
         ]) as Entry[];

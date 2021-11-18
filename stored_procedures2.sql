@@ -105,11 +105,11 @@ BEGIN
 
     declare @Q nvarchar(max);
     select @Q = '
-    select [entry], displayText, 
-    coalesce(ed.qualityScore, qualityScore) as qualityScore, 
-    coalesce(ed.obscurityScore, obscurityScore) as obscurityScore
-    from Explored
-    left join Edits ed on ed.[entry] = [entry] and ed.userId = @UserId
+    select ex.[entry], ex.displayText, 
+    coalesce(ed.qualityScore, ex.qualityScore) as qualityScore, 
+    coalesce(ed.obscurityScore, ex.obscurityScore) as obscurityScore
+    from Explored ex
+    left join Edits ed on ed.[entry] = ex.[entry] and ed.userId = @UserId
     where [length] = len(@Query)
     ' + @Conds;
 
@@ -117,40 +117,28 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE FrontierQuery
+CREATE PROCEDURE [dbo].[FrontierQuery]
     @Query nvarchar(127),
     @DataSource nvarchar(127),
     @Page int
 AS
 BEGIN
     declare @Conds nvarchar(1024);
-    select @Conds = ' and entry like ''' + stuff((
-	select
-        case
-            when substring(a.b, n.Number, 1) = '.' then '_'
-            else substring(a.b, n.Number, 1)
-        end
-    from (select @Query b) a
-    join Numbers n on n.number <= len(a.b)
-    FOR XML PATH('')
-	), 1, 1, '') + '''';
+    select @Conds = ' and entry like ''' + replace(@Query, '.', '_') + '''';
 
     declare @Q nvarchar(max);
     select @Q = '
-    from @DataSource
-    where [length] = len(@Query)
+    from ' + @DataSource + ' ds
+    where ds.[length] = len(@Query)
     ' + @Conds
-    + ' order by dataSourceScore desc
-    OFFSET (@Page * 100) ROWS FETCH NEXT 100 ROWS ONLY';
+    + ' order by ds.dataSourceScore desc'
+    + ' OFFSET ((@Page - 1)*100) ROWS FETCH NEXT 100 ROWS ONLY';
 
-	declare @Q1 nvarchar(max) = concat('update @DataSource set [views] = [views] + 1 ', @Q);
-	declare @Q2 nvarchar(max) = concat('select [entry], displayText, dataSourceScore, [views]-1 as [views] ', @Q);
+	declare @Q1 nvarchar(max) = concat('WITH q AS ( SELECT  * ', @Q, ') UPDATE  q SET [views] = [views] + 1');
+	declare @Q2 nvarchar(max) = concat('select ds.[entry], ds.displayText, ds.dataSourceScore, (ds.[views]-1) as [views] ', @Q);
 
-    EXECUTE sp_executesql @Q1, N'@Query nvarchar(127), @DataSource nvarchar(127), @Page int',
-        @Query=@Query, @DataSource=@DataSource, @Page=@Page;
-
-    EXECUTE sp_executesql @Q2, N'@Query nvarchar(127), @DataSource nvarchar(127), @Page int',
-        @Query=@Query, @DataSource=@DataSource, @Page=@Page;
+    EXECUTE sp_executesql @Q1, N'@Query nvarchar(127), @Page int', @Query=@Query, @Page=@Page;
+    EXECUTE sp_executesql @Q2, N'@Query nvarchar(127), @Page int', @Query=@Query, @Page=@Page;
 END
 GO
 
@@ -201,16 +189,33 @@ BEGIN
     where not exists(select 1 from Edits where [entry] = et.[entry] and UserId = @UserId);
 
     update ex set
+		displayText = et.displayText,
         qualityScore = calc.qualityScore,
         obscurityScore = calc.obscurityScore
     from Explored ex
     inner join @Entries et on et.[entry] = ex.[entry]
     inner join (
         select ed.[entry],
-        avg(ed.qualityScore) as qualityScore,
-        avg(ed.obscurityScore) as obscurityScore
+        cast(avg(cast(ed.qualityScore as decimal(3, 2))) as decimal(3, 2)) as qualityScore,
+        cast(avg(cast(ed.obscurityScore as decimal(3, 2))) as decimal(3, 2)) as obscurityScore
         from Edits ed
         group by ed.[entry]
     ) calc on calc.[entry] = ex.[entry];
 END
 GO
+
+drop table #TestEntries;
+
+create table #TestEntries (
+	[entry] nvarchar(127) not null primary key,
+	[displayText] nvarchar(127),
+	qualityScore decimal(3, 2),
+	obscurityScore decimal(3, 2)
+);
+
+insert into #TestEntries ([entry], displayText, qualityScore, obscurityScore)
+values
+('TESTA', 'testa', 1, 1),
+('TESTO', 'Testo', 1, 2);
+
+declare @UserId nvarchar(127) = 'bzoon';
