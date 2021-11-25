@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import Cookies from 'js-cookie';
 
 export async function exploredQuery(req: Request, res: Response) {
-    let query = req.query.query! as string;
+    let query = req.query.query as string;
     let userId = getUserId();
 
     if (!query)
@@ -25,8 +25,8 @@ export async function exploredQuery(req: Request, res: Response) {
 }
 
 export async function frontierQuery(req: Request, res: Response) {
-    let query = req.query.query! as string;
-    let dataSource = req.query.dataSource! as string;
+    let query = req.query.query as string;
+    let dataSource = req.query.dataSource as string;
     let page = (req.query.page ? req.query.page! : '1') as string;
 
     if (!query || !dataSource)
