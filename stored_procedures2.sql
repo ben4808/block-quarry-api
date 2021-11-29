@@ -132,7 +132,7 @@ BEGIN
     where ds.[length] = len(@Query)
     ' + @Conds
     + ' order by ds.dataSourceScore desc'
-    + ' OFFSET ((@Page - 1)*100) ROWS FETCH NEXT 100 ROWS ONLY';
+    + ' OFFSET ((@Page - 1)*200) ROWS FETCH NEXT 200 ROWS ONLY';
 
 	declare @Q1 nvarchar(max) = concat('WITH q AS ( SELECT  * ', @Q, ') UPDATE  q SET [views] = [views] + 1');
 	declare @Q2 nvarchar(max) = concat('select ds.[entry], ds.displayText, ds.dataSourceScore, (ds.[views]-1) as [views] ', @Q);
