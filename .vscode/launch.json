@@ -18,6 +18,17 @@
             "type": "pwa-node",
             "sourceMaps": true,
             "smartStep": true
-        }
+        },
+        {
+          "name": "Merge Word List script",
+          "request": "launch",
+          "type": "python",
+          "program": "${file}",
+          "args": ["C:\\Users\\ben_z\\Downloads\\rectifiedWordList.dict",
+          "C:\\Users\\ben_z\\Downloads\\newWords.txt",
+          "-o", "C:\\Users\\ben_z\\Downloads\\rectified2.dict",
+          "-odel", ";", "-ndel", ";", "-dict"
+          ]
+      },
     ]
 }
