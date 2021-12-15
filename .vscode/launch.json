@@ -4,31 +4,42 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "Launch via NPM",
-            "request": "launch",
-            "runtimeArgs": [
-                "run",
-                "start:dev"
-            ],
-            "runtimeExecutable": "npm",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "type": "pwa-node",
-            "sourceMaps": true,
-            "smartStep": true
-        },
-        {
-          "name": "Merge Word List script",
-          "request": "launch",
-          "type": "python",
-          "program": "${file}",
-          "args": ["C:\\Users\\ben_z\\Downloads\\rectifiedWordList.dict",
-          "C:\\Users\\ben_z\\Downloads\\newWords.txt",
-          "-o", "C:\\Users\\ben_z\\Downloads\\rectified2.dict",
-          "-odel", ";", "-ndel", ";", "-dict"
-          ]
+      {
+        "name": "Launch via NPM",
+        "request": "launch",
+        "runtimeArgs": [
+            "run",
+            "start:dev"
+        ],
+        "runtimeExecutable": "npm",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "type": "pwa-node",
+        "sourceMaps": true,
+        "smartStep": true
+      },
+      {
+        "name": "Word List Ops script delete",
+        "request": "launch",
+        "type": "python",
+        "program": "${file}",
+        "args": ["-i", "C:\\Users\\ben_z\\Downloads\\rectified3.dict",
+        "-i", "C:\\Users\\ben_z\\Downloads\\queryResults.dict",
+        "-o", "C:\\Users\\ben_z\\Downloads\\rectified4.dict",
+        "-if", "dict", "-of", "dict", "-oper", "delete"
+        ]
+      },
+      {
+        "name": "Word List Ops script query",
+        "request": "launch",
+        "type": "python",
+        "program": "${file}",
+        "args": ["-i", "C:\\Users\\ben_z\\Downloads\\rectified3.dict",
+        "-o", "C:\\Users\\ben_z\\Downloads\\queryResults.dict",
+        "-if", "dict", "-of", "dict", "-oper", "query",
+        "-query", "[^AEIOU]{6}"
+        ]
       },
     ]
 }
