@@ -1,12 +1,12 @@
 import DataDao from '@daos/DataDao';
 import { Entry } from '@entities/Entry';
-import { deepClone, getEntryScoreForDict, getEntryScoreForDictAlt } from '@shared/utils';
+import { deepClone, getEntryScoreForDictAlt } from '@shared/utils';
 import { Request, Response } from 'express';
 import StatusCodes from 'http-status-codes';
 import LineByLineReader from 'line-by-line';
 
 export async function loadExplored(req: Request, res: Response) {
-    let filePath = "C:\\Users\\ben_z\\Desktop\\rectifiedWordListWithRaw.dict";
+    let filePath = "C:\\Users\\ben_z\\Downloads\\rectified4.csv";
     let entries = [] as Entry[];
     let i = 0;
 
@@ -41,7 +41,7 @@ export async function loadExplored(req: Request, res: Response) {
             }
 
             i++;
-            if (i % 10000 === 0)
+            if (i % 10_000 === 0)
                 console.log(i);
         });
     }
