@@ -17,6 +17,8 @@ app.listen(port, () => {
 // http://localhost:3001/api/scrape?source=Crosshare&startUrl=https://crosshare.org&endDate=07/01/2021
 // http://localhost:3001/api/scrape?source=Crosshare_Minis&startUrl=https://crosshare.org/dailyminis/2021/7&endDate=07/01/2021
 
+// http://localhost:3001/api/scrapeCrosswordTracker
+
 // http://localhost:3001/api/loadExplored
 // http://localhost:3001/api/exploredQuery?query=p.w.r...
 // http://localhost:3001/api/frontierQuery?query=p.w.r...&dataSource=Podcasts&page=1

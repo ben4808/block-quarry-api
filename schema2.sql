@@ -38,7 +38,9 @@ CREATE NONCLUSTERED INDEX IX_Col13 ON Explored(col13 ASC);
 CREATE NONCLUSTERED INDEX IX_Col14 ON Explored(col14 ASC);
 CREATE NONCLUSTERED INDEX IX_Col15 ON Explored(col15 ASC);
 
-create table [Ginsberg] (
+-- Ginsberg, Podcasts, Nutrimatic, OneLook, Newspapers
+
+create table [<Source>] (
 	[entry] nvarchar(127) not null primary key,
 	[displayText] nvarchar(127),
     dataSourceScore int,
@@ -46,17 +48,7 @@ create table [Ginsberg] (
     [length] int
 );
 
-CREATE NONCLUSTERED INDEX IX_Len ON Ginsberg([length] ASC);
-
-create table [Podcasts] (
-	[entry] nvarchar(127) not null primary key,
-	[displayText] nvarchar(127),
-    dataSourceScore int,
-    [views] int,
-    [length] int
-);
-
-CREATE NONCLUSTERED INDEX IX_Len ON Podcasts([length] ASC);
+CREATE NONCLUSTERED INDEX IX_Len ON <Source>([length] ASC);
 
 create table Edits (
     [entry] nvarchar(127) not null,

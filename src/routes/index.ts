@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { discoverEntries, exploredQuery, frontierQuery } from './BlockQuarry';
-import { loadExplored, loadPodcasts } from './Data';
+import { loadExplored, loadPodcasts, scrapeCrosswordTracker } from './Data';
 import { getPuzzlesByAuthor, getPuzzlesByPublication, getPuzzlesOfWeek } from './Puzzles';
 import { scrapePuzzles } from './Scrapers';
 
 // Scraper-route
 const apiRouter = Router();
 apiRouter.get('/scrape', scrapePuzzles);
+apiRouter.get('/scrapeCrosswordTracker', scrapeCrosswordTracker);
 
 // Data loading routes
 apiRouter.get('/loadExplored', loadExplored);

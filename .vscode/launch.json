@@ -35,10 +35,10 @@
         "request": "launch",
         "type": "python",
         "program": "${file}",
-        "args": ["-i", "C:\\Users\\ben_z\\Downloads\\rectified3.dict",
+        "args": ["-i", "C:\\Users\\ben_z\\Downloads\\rectified4.dict",
         "-o", "C:\\Users\\ben_z\\Downloads\\queryResults.dict",
         "-if", "dict", "-of", "dict", "-oper", "query",
-        "-query", "[^AEIOU]{6}"
+        "-query", "^[NALCIEG]*C[NALCIEG]*$"
         ]
       },
     ]

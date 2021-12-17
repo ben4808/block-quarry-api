@@ -4,6 +4,7 @@ import { deepClone, getEntryScoreForDictAlt } from '@shared/utils';
 import { Request, Response } from 'express';
 import StatusCodes from 'http-status-codes';
 import LineByLineReader from 'line-by-line';
+import { getHtmlPage } from 'src/sources/utils';
 
 export async function loadExplored(req: Request, res: Response) {
     let filePath = "C:\\Users\\ben_z\\Downloads\\rectified4.csv";
@@ -138,4 +139,67 @@ export async function loadPodcasts(req: Request, res: Response) {
     catch(ex) {
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
     }
+}
+
+export async function scrapeCrosswordTracker(req: Request, res: Response) {
+  let dataDao = new DataDao();
+
+  let letters = "abcdefghijklmnopqrstuvwxyz";
+  let page = 1;
+  let entries = [] as Entry[];
+
+  try {
+    for (let letter of letters) {
+      console.log(letter);
+      page = 1;
+      let isLastPage = false;
+
+      let dict = new Map<string, boolean>();
+
+      while(true) {
+        if (isLastPage) {
+          await dataDao.addDataSourceEntries("Newspapers", entries);
+          await new Promise(f => setTimeout(f, 1000));
+          entries = [];
+          break;
+        }
+
+        let url = `https://crosswordtracker.com/browse/answers-starting-with-${letter}/?page=${page}`;
+        let parsedHtml = await getHtmlPage(url);
+
+        let results = parsedHtml.querySelectorAll("a.answer").map(x => x.textContent);
+        if (results.length < 300) {
+          isLastPage = true;
+        }
+
+        for (let result of results) {
+          let normalized = result.replace(/[^A-Z]/g, "");
+          if (dict.has(normalized))
+            continue;
+
+          let entry = {
+            entry: normalized,
+            displayText: result.toLowerCase(),
+            dataSourceScore: 10,
+          } as Entry;
+
+          entries.push(entry);
+          if (entries.length >= 100) {
+            await dataDao.addDataSourceEntries("Newspapers", entries);
+            await new Promise(f => setTimeout(f, 1000));
+            entries = [];
+          }
+
+          dict.set(normalized, true);
+        }
+
+        page++;
+      }
+    }
+      
+    return res.status(StatusCodes.OK).json("{'message': 'Success'}");
+  }
+  catch(ex) {
+    return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+  }
 }
