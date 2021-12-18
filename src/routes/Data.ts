@@ -1,10 +1,10 @@
 import DataDao from '@daos/DataDao';
 import { Entry } from '@entities/Entry';
-import { deepClone, getEntryScoreForDictAlt } from '@shared/utils';
+import { deepClone, getEntryScoreForDictAlt, mapKeys } from '@shared/utils';
 import { Request, Response } from 'express';
 import StatusCodes from 'http-status-codes';
 import LineByLineReader from 'line-by-line';
-import { getHtmlPage } from 'src/sources/utils';
+import { getHtmlPage, getHtmlString } from 'src/sources/utils';
 
 export async function loadExplored(req: Request, res: Response) {
     let filePath = "C:\\Users\\ben_z\\Downloads\\rectified4.csv";
@@ -201,5 +201,98 @@ export async function scrapeCrosswordTracker(req: Request, res: Response) {
   }
   catch(ex) {
     return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+  }
+}
+
+export async function scrapeNutrimatic(query: string, page?: number): Promise<Entry[]> {
+  page = page || 1;
+
+  let dataDao = new DataDao();
+  let entries = [] as Entry[];
+  let nutrimaticQuery = query.toLowerCase().replace(/\./g, "A");
+
+  try {
+    let url = `https://nutrimatic.org/?q=${nutrimaticQuery}&start=${(page-1)*200}&num=200`;
+    let parsedHtml = await getHtmlPage(url);
+    let dict = new Map<string, boolean>();
+    let resultsWithScores = new Map<string, number>();
+
+    let results = parsedHtml.querySelectorAll("span");
+    for (let result of results) {
+      let styleAttribute = result.getAttribute("style")!;
+      let fontSize = +(/(\d\.\d+)em$/.exec(styleAttribute)![1]);
+      if (fontSize > 1.5)
+        resultsWithScores.set(result.textContent, fontSize);
+    }
+
+    for (let displayText of mapKeys(resultsWithScores)) {
+      let normalized = displayText.replace(/[^A-Za-z]/g, "").toUpperCase();
+      if (dict.has(normalized))
+        continue;
+
+      let entry = {
+        entry: normalized,
+        displayText: displayText,
+        dataSourceScore: Math.round(resultsWithScores.get(displayText)! * 100),
+      } as Entry;
+
+      entries.push(entry);
+      dict.set(normalized, true);
+    }
+     
+    await dataDao.addDataSourceEntries("Nutrimatic", entries);
+
+    return entries;
+  }
+  catch(ex) {
+    console.log("ERROR Scraping Nutrimatic: " + JSON.stringify(ex));
+    return entries;
+  }
+}
+
+export async function scrapeOneLook(query: string, page?: number): Promise<Entry[]> {
+  page = page || 1;
+
+  let dataDao = new DataDao();
+  let entries = [] as Entry[];
+  let onelookQuery = query.toLowerCase().replace(/\./g, "?");
+
+  try {
+    let url = `https://www.onelook.com/?w=${onelookQuery}&ws1=1&ssbp=1&first=${(page-1)*100 + 1}`;
+    let html = await getHtmlString(url);
+
+    let regexp = /<a href="\/\?w=(.*?)">(.*?)<\/a> *<font color=grey> *\((\d+)\)<\/font><br>/g;
+    let dict = new Map<string, boolean>();
+    let resultsWithScores = new Map<string, number>();
+    let match: any;
+    let i = 0;
+    while ((match = regexp.exec(html)) !== null) {
+      let score = +match[3];
+      resultsWithScores.set(match[2], score);
+      i++;
+    }
+
+    for (let displayText of mapKeys(resultsWithScores)) {
+      let normalized = displayText.replace(/[^A-Za-z]/g, "").toUpperCase();
+      if (dict.has(normalized))
+        continue;
+
+      let entry = {
+        entry: normalized,
+        displayText: displayText,
+        dataSourceScore: resultsWithScores.get(displayText)!,
+      } as Entry;
+
+      entries.push(entry);
+      dict.set(normalized, true);
+    }
+     
+    await dataDao.addDataSourceEntries("OneLook", entries);
+
+    return entries;
+  }
+  catch(ex) {
+    console.log("ERROR Scraping OneLook: " + JSON.stringify(ex));
+    return entries;
   }
 }

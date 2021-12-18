@@ -2,11 +2,24 @@ import { parse, HTMLElement } from 'node-html-parser';
 import fetch from 'node-fetch'
 import { createWriteStream, readFile } from 'fs'
 
+export async function getLocalJsonPage(url: string): Promise<any> {
+  let response = await fetch(url); 
+  let jsonResponse = await response.json();
+  return jsonResponse.contents;
+}
+
 export async function getHtmlPage(url: string): Promise<HTMLElement> {
     let weoriginUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
     let response = await fetch(weoriginUrl); 
     let jsonResponse = await response.json();
     return parse(jsonResponse.contents);
+}
+
+export async function getHtmlString(url: string): Promise<string> {
+  let weoriginUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+  let response = await fetch(weoriginUrl); 
+  let jsonResponse = await response.json();
+  return jsonResponse.contents;
 }
 
 export async function getLocalHtmlPage(path: string): Promise<HTMLElement> {

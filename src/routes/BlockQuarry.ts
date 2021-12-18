@@ -4,6 +4,7 @@ import { generateId } from '@shared/utils';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import Cookies from 'js-cookie';
+import { scrapeNutrimatic, scrapeOneLook } from './Data';
 
 export async function exploredQuery(req: Request, res: Response) {
     let query = req.query.query as string;
@@ -33,14 +34,23 @@ export async function frontierQuery(req: Request, res: Response) {
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
 
     let blockQueryDao = new BlockQuarryDao();
+    let results = [] as Entry[];
 
     try {
-        let results = await blockQueryDao.frontierQuery(query, dataSource, page);
+      if (dataSource === "Nutrimatic") {
+        //["have", "if", "is", "it", "and"]
+        await scrapeNutrimatic(query, +page);
+      }
+      else if (dataSource === "OneLook") {
+        await scrapeOneLook(query, +page);
+      }
         
-        return res.status(StatusCodes.OK).json(results);
+      results = await blockQueryDao.frontierQuery(query, dataSource, page);
+
+      return res.status(StatusCodes.OK).json(results);
     }
     catch(ex) {
-        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+      return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
     }
 }
 
