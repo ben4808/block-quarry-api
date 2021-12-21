@@ -52,6 +52,15 @@ class BlockQuarryDao implements IBlockQuarryDao {
 
         return "Done";
     }
+
+    getAllExplored = async (minQuality: string, minObscurity: string) => {
+        let results = await sqlQuery(true, "GetAllExplored", [
+            {name: "MinQuality", type: TYPES.Int, value: minQuality},
+            {name: "MinObscurity", type: TYPES.Int, value: minObscurity},
+        ]) as Entry[];
+
+        return results;
+    }
 }
 
 export default BlockQuarryDao;

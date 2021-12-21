@@ -38,7 +38,6 @@ export async function frontierQuery(req: Request, res: Response) {
 
     try {
       if (dataSource === "Nutrimatic") {
-        //["have", "if", "is", "it", "and"]
         await scrapeNutrimatic(query, +page);
       }
       else if (dataSource === "OneLook") {
@@ -70,6 +69,23 @@ export async function discoverEntries(req: Request, res: Response) {
     }
     catch(ex) {
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
+}
+
+export async function getAllExplored(req: Request, res: Response) {
+    let minQuality = (req.query.minQuality || "1") as string;
+    let minObscurity = (req.query.minObscurity || "1") as string;
+
+    let blockQueryDao = new BlockQuarryDao();
+    let results = [] as Entry[];
+
+    try {
+      results = await blockQueryDao.getAllExplored(minQuality, minObscurity);
+
+      return res.status(StatusCodes.OK).json(results);
+    }
+    catch(ex) {
+      return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
     }
 }
 

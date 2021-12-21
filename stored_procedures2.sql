@@ -131,14 +131,23 @@ BEGIN
     from ' + @DataSource + ' ds
     where ds.[length] = len(@Query)
     ' + @Conds
-    + ' order by ds.dataSourceScore desc'
+    + ' order by ds.dataSourceScore desc, ds.entry desc'
     + ' OFFSET ((@Page - 1)*200) ROWS FETCH NEXT 200 ROWS ONLY';
 
-	declare @Q1 nvarchar(max) = concat('WITH q AS ( SELECT  * ', @Q, ') UPDATE  q SET [views] = [views] + 1');
-	declare @Q2 nvarchar(max) = concat('select ds.[entry], ds.displayText, ds.dataSourceScore, (ds.[views]-1) as [views] ', @Q);
+	declare @Q1 nvarchar(max) = concat('insert into #resultsTable select ds.[entry], ds.displayText, ds.dataSourceScore, (ds.[views]-1) as [views] ', @Q);
+	declare @Q2 nvarchar(max) = concat('update d SET [views] = d.[views] + 1 from ', @DataSource, ' d inner join #resultsTable r on d.entry = r.entry');
 
-    EXECUTE sp_executesql @Q1, N'@Query nvarchar(127), @Page int', @Query=@Query, @Page=@Page;
-    EXECUTE sp_executesql @Q2, N'@Query nvarchar(127), @Page int', @Query=@Query, @Page=@Page;
+	create table #resultsTable (
+		[entry] nvarchar(127),
+		[displayText] nvarchar(127),
+		[dataSourceScore] int,
+		[views] int
+	);
+
+	EXECUTE sp_executesql @Q1, N'@Query nvarchar(127), @Page int', @Query=@Query, @Page=@Page;
+	EXECUTE sp_executesql @Q2, N'@Query nvarchar(127), @Page int', @Query=@Query, @Page=@Page;
+
+	select * from #resultsTable;
 END
 GO
 
@@ -178,13 +187,14 @@ BEGIN
     inner join @Entries et on et.[entry] = ed.[entry] 
 	where ed.UserId = @UserId;
 
-    insert into Edits ([entry], userId, displayText, qualityScore, obscurityScore)
+    insert into Edits ([entry], userId, displayText, qualityScore, obscurityScore, createdDate)
     select
         et.[entry],
         @UserId,
         et.displayText,
         et.qualityScore,
-        et.obscurityScore
+        et.obscurityScore,
+        getdate()
     from @Entries et
     where not exists(select 1 from Edits where [entry] = et.[entry] and UserId = @UserId);
 
@@ -201,6 +211,17 @@ BEGIN
         from Edits ed
         group by ed.[entry]
     ) calc on calc.[entry] = ex.[entry];
+END
+GO
+
+CREATE PROCEDURE GetAllExplored
+	@MinQuality int = 0,
+	@MinObscurity int = 0
+AS
+BEGIN
+	select [entry], [displayText], [qualityScore], [obscurityScore]
+	from Explored
+	where qualityScore >= @MinQuality and obscurityScore >= @MinObscurity;
 END
 GO
 
