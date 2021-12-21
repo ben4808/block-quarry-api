@@ -42,7 +42,7 @@ class BlockQuarryDao implements IBlockQuarryDao {
                     { name: "obscurityScore", type: TYPES.Decimal, precision: 3, scale: 2 },
                 ],
                 rows: entries.map(entry => [
-                    entry.entry, 
+                    entry.entry.toUpperCase().replace(/[^A-Z]/g, ""),
                     entry.displayText,
                     entry.qualityScore || 3,
                     entry.obscurityScore || 3,

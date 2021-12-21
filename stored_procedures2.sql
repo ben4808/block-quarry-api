@@ -221,7 +221,8 @@ AS
 BEGIN
 	select [entry], [displayText], [qualityScore], [obscurityScore]
 	from Explored
-	where qualityScore >= @MinQuality and obscurityScore >= @MinObscurity;
+	where qualityScore >= @MinQuality and obscurityScore >= @MinObscurity
+    order by [entry];
 END
 GO
 
