@@ -182,7 +182,8 @@ BEGIN
         from @Entries et
 	where not exists(select 1 from Explored where [entry] = et.[entry]);
 
-    update ed set [displayText] = et.displayText, qualityScore = et.qualityScore, obscurityScore = et.obscurityScore
+    update ed set [displayText] = et.displayText, qualityScore = et.qualityScore, 
+        obscurityScore = et.obscurityScore, createdDate = getDate()
     from Edits ed
     inner join @Entries et on et.[entry] = ed.[entry] 
 	where ed.UserId = @UserId;

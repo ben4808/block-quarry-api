@@ -3,12 +3,11 @@ import { Entry } from '@entities/Entry';
 import { generateId } from '@shared/utils';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import Cookies from 'js-cookie';
 import { scrapeNutrimatic, scrapeOneLook } from './Data';
 
 export async function exploredQuery(req: Request, res: Response) {
     let query = req.query.query as string;
-    let userId = getUserId();
+    let userId = getUserId(req, res);
 
     if (!query)
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
@@ -54,7 +53,7 @@ export async function frontierQuery(req: Request, res: Response) {
 }
 
 export async function discoverEntries(req: Request, res: Response) {
-    let userId = getUserId();
+    let userId = getUserId(req, res);
     let entries = req.body! as Entry[];
 
     if (!entries)
@@ -89,11 +88,13 @@ export async function getAllExplored(req: Request, res: Response) {
     }
 }
 
-function getUserId(): string {
-    let userId = Cookies.get("bq_user_id");
+function getUserId(req: any, res: any): string {
+    let cookieKey = "block_quarry_user";
+    let userId = req.cookies[cookieKey];
     if (!userId) {
         userId = generateId();
-        Cookies.set("bq_user_id", userId);
+        let oneYear = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+        res.cookie(cookieKey, userId, {expires: oneYear, sameSite: 'none', secure: true});
     }
 
     return userId;
