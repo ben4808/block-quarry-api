@@ -202,9 +202,9 @@ BEGIN
     where not exists(select 1 from Edits where [entry] = et.[entry] and UserId = @UserId);
 
     update ex set
-		displayText = et.displayText,
-        qualityScore = calc.qualityScore,
-        obscurityScore = calc.obscurityScore
+		displayText = isnull(et.displayText, ex.displayText),
+        qualityScore = isnull(calc.qualityScore, ex.qualityScore),
+        obscurityScore = isnull(calc.obscurityScore, ex.obscurityScore)
     from Explored ex
     inner join @Entries et on et.[entry] = ex.[entry]
     inner join (
