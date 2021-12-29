@@ -56,7 +56,7 @@ create table Edits (
     displayText nvarchar(127),
     qualityScore tinyint,
     obscurityScore tinyint,
-    [createdDate] datetime not null,
+    [modifiedDate] datetime not null,
     primary key([entry], userId)
 );
 

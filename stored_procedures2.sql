@@ -151,7 +151,7 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE DiscoverEntries
+CREATE PROCEDURE [dbo].[DiscoverEntries]
     @UserId nvarchar(127),
     @Entries dbo.ExploredType readonly
 AS
@@ -182,13 +182,15 @@ BEGIN
         from @Entries et
 	where not exists(select 1 from Explored where [entry] = et.[entry]);
 
-    update ed set [displayText] = et.displayText, qualityScore = et.qualityScore, 
-        obscurityScore = et.obscurityScore, createdDate = getDate()
+    update ed set [displayText] = isnull(et.displayText, ed.displayText), 
+        qualityScore = isnull(et.qualityScore, ed.qualityScore),
+        obscurityScore = isnull(et.obscurityScore, ed.obscurityScore), 
+        modifiedDate = getDate()
     from Edits ed
     inner join @Entries et on et.[entry] = ed.[entry] 
 	where ed.UserId = @UserId;
 
-    insert into Edits ([entry], userId, displayText, qualityScore, obscurityScore, createdDate)
+    insert into Edits ([entry], userId, displayText, qualityScore, obscurityScore, modifiedDate)
     select
         et.[entry],
         @UserId,

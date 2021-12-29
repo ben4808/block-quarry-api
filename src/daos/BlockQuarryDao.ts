@@ -20,7 +20,6 @@ class BlockQuarryDao implements IBlockQuarryDao {
     }
 
     frontierQuery = async (query: string, dataSource: string, page: string) => {
-
         let results = await sqlQuery(true, "FrontierQuery", [
             {name: "Query", type: TYPES.NVarChar, value: query},
             {name: "DataSource", type: TYPES.NVarChar, value: dataSource},
@@ -31,7 +30,6 @@ class BlockQuarryDao implements IBlockQuarryDao {
     }
 
     discoverEntries = async (userId: string, entries: Entry[]) => {
-
         await sqlQuery(true, "DiscoverEntries", [
             {name: "UserId", type: TYPES.NVarChar, value: userId},
             {name: "Entries", type: TYPES.TVP, value: {
@@ -44,8 +42,8 @@ class BlockQuarryDao implements IBlockQuarryDao {
                 rows: entries.map(entry => [
                     entry.entry.toUpperCase().replace(/[^A-Z]/g, ""),
                     entry.displayText,
-                    entry.qualityScore || 3,
-                    entry.obscurityScore || 3,
+                    entry.qualityScore,
+                    entry.obscurityScore,
                 ]),
             }}
         ]);
