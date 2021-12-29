@@ -38,7 +38,7 @@ CREATE NONCLUSTERED INDEX IX_Col13 ON Explored(col13 ASC);
 CREATE NONCLUSTERED INDEX IX_Col14 ON Explored(col14 ASC);
 CREATE NONCLUSTERED INDEX IX_Col15 ON Explored(col15 ASC);
 
--- Ginsberg, Podcasts, Nutrimatic, OneLook, Newspapers
+-- Ginsberg, Podcasts, Nutrimatic, OneLook, Newspapers, Husic
 
 create table [<Source>] (
 	[entry] nvarchar(127) not null primary key,

@@ -296,3 +296,47 @@ export async function scrapeOneLook(query: string, page?: number): Promise<Entry
     return entries;
   }
 }
+
+export async function loadHusic(req: Request, res: Response) {
+    let filePath = "C:\\Users\\ben_z\\Downloads\\spreadthewordlist (1).dict";
+    let entries = [] as Entry[];
+    let i = 0;
+
+    let dataDao = new DataDao();
+    
+    try {
+        let lr = new LineByLineReader(filePath);
+        lr.on('error', function (err) {
+            console.log("ERROR: " + err);
+        });
+        
+        lr.on('line', (line) => {
+            let match = /^([a-z]+);([0-9]+)/.exec(line)!;
+            if (!match) return;
+            let entry = {
+                entry: match[1].toUpperCase(),
+                displayText: match[1],
+                dataSourceScore: +match[2],
+            } as Entry;
+
+            entries.push(entry);
+            
+            if (entries.length % 100 === 0) {
+                lr.pause();
+
+                let entriesClone = deepClone(entries);
+                dataDao.addDataSourceEntries("Husic", entriesClone).then(() => {
+                    lr.resume();
+                });
+                entries = [];
+            }
+
+            i++;
+            if (i % 10000 === 0)
+                console.log(i);
+        });
+    }
+    catch(ex) {
+        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
+}
