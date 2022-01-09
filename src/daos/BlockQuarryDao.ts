@@ -4,7 +4,7 @@ import { sqlQuery } from "./sqlServer";
 
 export interface IBlockQuarryDao {
     exploredQuery: (query: string, userId: string) => Promise<Entry[]>;
-    frontierQuery: (query: string, dataSource: string, page: string) => Promise<Entry[]>;
+    frontierQuery: (query: string, dataSource: string, page: number, recordsPerPage: number) => Promise<Entry[]>;
     discoverEntries: (userId: string, entries: Entry[]) => Promise<string>;
 }
 
@@ -19,11 +19,12 @@ class BlockQuarryDao implements IBlockQuarryDao {
         return results;
     }
 
-    frontierQuery = async (query: string, dataSource: string, page: string) => {
+    frontierQuery = async (query: string, dataSource: string, page: number, recordsPerPage: number) => {
         let results = await sqlQuery(true, "FrontierQuery", [
             {name: "Query", type: TYPES.NVarChar, value: query},
             {name: "DataSource", type: TYPES.NVarChar, value: dataSource},
-            {name: "Page", type: TYPES.NVarChar, value: page},
+            {name: "Page", type: TYPES.Int, value: page},
+            {name: "RecordsPerPage", type: TYPES.Int, value: recordsPerPage},
         ]) as Entry[];
 
         return results;

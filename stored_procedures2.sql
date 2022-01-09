@@ -120,7 +120,8 @@ GO
 CREATE PROCEDURE [dbo].[FrontierQuery]
     @Query nvarchar(127),
     @DataSource nvarchar(127),
-    @Page int
+    @Page int,
+	@RecordsPerPage int = 200
 AS
 BEGIN
     declare @Conds nvarchar(1024);
@@ -132,7 +133,7 @@ BEGIN
     where ds.[length] = len(@Query)
     ' + @Conds
     + ' order by ds.dataSourceScore desc, ds.entry desc'
-    + ' OFFSET ((@Page - 1)*200) ROWS FETCH NEXT 200 ROWS ONLY';
+    + ' OFFSET ((@Page - 1)*@RecordsPerPage) ROWS FETCH NEXT @RecordsPerPage ROWS ONLY';
 
 	declare @Q1 nvarchar(max) = concat('insert into #resultsTable select ds.[entry], ds.displayText, ds.dataSourceScore, (ds.[views]-1) as [views] ', @Q);
 	declare @Q2 nvarchar(max) = concat('update d SET [views] = d.[views] + 1 from ', @DataSource, ' d inner join #resultsTable r on d.entry = r.entry');
@@ -144,8 +145,8 @@ BEGIN
 		[views] int
 	);
 
-	EXECUTE sp_executesql @Q1, N'@Query nvarchar(127), @Page int', @Query=@Query, @Page=@Page;
-	EXECUTE sp_executesql @Q2, N'@Query nvarchar(127), @Page int', @Query=@Query, @Page=@Page;
+	EXECUTE sp_executesql @Q1, N'@Query nvarchar(127), @Page int, @RecordsPerPage int', @Query=@Query, @Page=@Page, @RecordsPerPage=@RecordsPerPage;
+	EXECUTE sp_executesql @Q2, N'@Query nvarchar(127), @Page int, @RecordsPerPage int', @Query=@Query, @Page=@Page, @RecordsPerPage=@RecordsPerPage;
 
 	select * from #resultsTable;
 END
