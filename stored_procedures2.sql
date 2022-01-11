@@ -229,7 +229,7 @@ BEGIN
         isnull(ed.qualityScore, ex.qualityScore) as qualityScore,
         isnull(ed.obscurityScore, ex.obscurityScore) as obscurityScore
 	from Explored ex
-    inner join Edits ed on ed.[entry] = ex.[entry] and ed.[userId] = @UserId
+    left join Edits ed on ed.[entry] = ex.[entry] and ed.[userId] = @UserId
 	where isnull(ed.qualityScore, ex.qualityScore) >= @MinQuality 
     and isnull(ed.obscurityScore, ex.obscurityScore) >= @MinObscurity
     order by [entry];

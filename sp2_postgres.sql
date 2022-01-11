@@ -175,7 +175,7 @@ end;
 $BODY$;
 
 CREATE OR REPLACE FUNCTION public.discover_entries(
-	user_id text,
+	user_id_input text,
 	entries text)
     RETURNS void
     LANGUAGE 'plpgsql'
@@ -220,18 +220,18 @@ begin
         obscurity_score = coalesce(et.obscurity_score, ed.obscurity_score), 
         modified_date = now()
     from input_entries et 
-	where et.entry = ed.entry and ed.user_id = user_id;
+	where et.entry = ed.entry and ed.user_id = user_id_input;
 
     insert into edits (entry, user_id, display_text, quality_score, obscurity_score, modified_date)
     select
         et.entry,
-        user_id,
+        user_id_input,
         et.display_text,
         et.quality_score,
         et.obscurity_score,
         now()
     from input_entries et
-    where not exists(select 1 from edits where entry = et.entry and user_id = user_id);
+    where not exists(select 1 from edits where entry = et.entry and user_id = user_id_input);
 
     update explored ex set
 		display_text = coalesce(et.display_text, ex.display_text),
@@ -244,24 +244,21 @@ begin
         cast(avg(cast(ed.obscurity_score as decimal(3, 2))) as decimal(3, 2)) as obscurity_score
         from edits ed
         group by ed.entry
-    ) calc on calc.entry = ex.entry
+    ) calc on calc.entry = et.entry
 	where et.entry = ex.entry;
 end;
 $BODY$;
 
 CREATE OR REPLACE FUNCTION public.get_all_explored(
-	user_id text,
-	min_quality int,
-	min_obscurity int)
-    RETURNS table (
-		entry text,
-		display_text text,
-		quality_score decimal(3, 2),
-		obscurity_score decimal(3, 2)
-	)
+	user_id_input text,
+	min_quality integer,
+	min_obscurity integer)
+    RETURNS TABLE(entry text, display_text text, quality_score numeric, obscurity_score numeric) 
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
 AS $BODY$
 begin	
 	return query select ex.entry, 
@@ -269,7 +266,7 @@ begin
         coalesce(ed.quality_score, ex.quality_score) as quality_score,
         coalesce(ed.obscurity_score, ex.obscurity_score) as obscurity_score
 	from explored ex
-    inner join edits ed on ed.entry = ex.entry and ed.user_id = user_id
+    left join edits ed on ed.entry = ex.entry and ed.user_id = user_id_input
 	where coalesce(ed.quality_score, ex.quality_score) >= min_quality 
     and coalesce(ed.obscurity_score, ex.obscurity_score) >= min_obscurity
     order by entry;
