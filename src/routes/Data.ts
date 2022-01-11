@@ -1,17 +1,17 @@
-import DataDao from '@daos/DataDao';
+import PostgresDataDao from '@daos/PostgresDataDao';
 import { Entry } from '@entities/Entry';
-import { deepClone, getEntryScoreForDictAlt, mapKeys } from '@shared/utils';
+import { deepClone, mapKeys } from '@shared/utils';
 import { Request, Response } from 'express';
 import StatusCodes from 'http-status-codes';
 import LineByLineReader from 'line-by-line';
 import { getHtmlPage, getHtmlString } from 'src/sources/utils';
 
+let dataDao = new PostgresDataDao();
+
 export async function loadExplored(req: Request, res: Response) {
-    let filePath = "C:\\Users\\ben_z\\Downloads\\rectified4.csv";
+    let filePath = "C:\\Users\\ben_z\\Downloads\\AllExplored (2).csv";
     let entries = [] as Entry[];
     let i = 0;
-
-    let dataDao = new DataDao();
     
     try {
         let lr = new LineByLineReader(filePath);
@@ -20,13 +20,13 @@ export async function loadExplored(req: Request, res: Response) {
         });
         
         lr.on('line', (line) => {
-            let match = /^([A-Z]+),"(.*)",([0-9]+)/g.exec(line)!;
+            let match = /^([A-Z]+),"(.*)",([0-9.]+),([0-9.]+)/g.exec(line)!;
             if (!match) return;
             let entry = {
                 entry: match[1],
                 displayText: match[2],
-                qualityScore: match[3] ? getEntryScoreForDictAlt(+match[3]) : 3,
-                obscurityScore: 3,
+                qualityScore: +match[3],
+                obscurityScore: +match[4],
             } as Entry;
 
             entries.push(entry);
@@ -55,8 +55,6 @@ export async function loadGinsberg(req: Request, res: Response) {
     let filePath = "C:\\Users\\ben_z\\Desktop\\entriesData\\ginsberg.txt";
     let entries = [] as Entry[];
     let i = 0;
-
-    let dataDao = new DataDao();
     
     try {
         let lr = new LineByLineReader(filePath);
@@ -76,7 +74,7 @@ export async function loadGinsberg(req: Request, res: Response) {
 
             entries.push(entry);
             
-            if (entries.length % 100 === 0) {
+            if (entries.length % 1000 === 0) {
                 lr.pause();
 
                 let entriesClone = deepClone(entries);
@@ -100,8 +98,6 @@ export async function loadPodcasts(req: Request, res: Response) {
     let filePath = "C:\\Users\\ben_z\\Desktop\\entriesData\\podcasts_merged.txt";
     let entries = [] as Entry[];
     let i = 0;
-
-    let dataDao = new DataDao();
     
     try {
         let lr = new LineByLineReader(filePath);
@@ -142,8 +138,6 @@ export async function loadPodcasts(req: Request, res: Response) {
 }
 
 export async function scrapeCrosswordTracker(req: Request, res: Response) {
-  let dataDao = new DataDao();
-
   let letters = "abcdefghijklmnopqrstuvwxyz";
   let page = 1;
   let entries = [] as Entry[];
@@ -207,7 +201,6 @@ export async function scrapeCrosswordTracker(req: Request, res: Response) {
 export async function scrapeNutrimatic(query: string, page?: number): Promise<Entry[]> {
   page = page || 1;
 
-  let dataDao = new DataDao();
   let entries = [] as Entry[];
   let nutrimaticQuery = query.toLowerCase().replace(/\./g, "A");
 
@@ -253,7 +246,6 @@ export async function scrapeNutrimatic(query: string, page?: number): Promise<En
 export async function scrapeOneLook(query: string, page?: number): Promise<Entry[]> {
   page = page || 1;
 
-  let dataDao = new DataDao();
   let entries = [] as Entry[];
   let onelookQuery = query.toLowerCase().replace(/\./g, "?");
 
@@ -301,8 +293,6 @@ export async function loadHusic(req: Request, res: Response) {
     let filePath = "C:\\Users\\ben_z\\Downloads\\spreadthewordlist (1).dict";
     let entries = [] as Entry[];
     let i = 0;
-
-    let dataDao = new DataDao();
     
     try {
         let lr = new LineByLineReader(filePath);

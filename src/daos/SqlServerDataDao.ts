@@ -1,13 +1,9 @@
 import { Entry } from "@entities/Entry";
 import { TYPES } from "tedious";
+import { IDataDao } from "./IDataDao";
 import { sqlQuery } from "./sqlServer";
 
-export interface IDataDao {
-    addExploredEntries: (entries: Entry[]) => Promise<string>;
-    addDataSourceEntries: (tableName: string, entries: Entry[]) => Promise<string>;
-}
-
-class DataDao implements IDataDao {
+class SqlServerDataDao implements IDataDao {
     addExploredEntries = async (entries: Entry[]) => {
 
         await sqlQuery(true, "LoadExploredTable", [
@@ -52,4 +48,4 @@ class DataDao implements IDataDao {
     }
 }
 
-export default DataDao;
+export default SqlServerDataDao;

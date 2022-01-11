@@ -219,13 +219,19 @@ END
 GO
 
 CREATE PROCEDURE GetAllExplored
+    @UserId nvarchar(127),
 	@MinQuality int = 0,
 	@MinObscurity int = 0
 AS
 BEGIN
-	select [entry], [displayText], [qualityScore], [obscurityScore]
-	from Explored
-	where qualityScore >= @MinQuality and obscurityScore >= @MinObscurity
+	select ex.[entry], 
+        isnull(ed.displayText, ex.displayText) as displayText,
+        isnull(ed.qualityScore, ex.qualityScore) as qualityScore,
+        isnull(ed.obscurityScore, ex.obscurityScore) as obscurityScore
+	from Explored ex
+    inner join Edits ed on ed.[entry] = ex.[entry] and ed.[userId] = @UserId
+	where isnull(ed.qualityScore, ex.qualityScore) >= @MinQuality 
+    and isnull(ed.obscurityScore, ex.obscurityScore) >= @MinObscurity
     order by [entry];
 END
 GO

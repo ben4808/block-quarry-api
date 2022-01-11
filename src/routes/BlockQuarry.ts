@@ -1,9 +1,12 @@
 import BlockQuarryDao from '@daos/BlockQuarryDao';
+import PostgresBQDao from '@daos/PostgresBQDao';
 import { Entry } from '@entities/Entry';
 import { generateId } from '@shared/utils';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { scrapeNutrimatic, scrapeOneLook } from './Data';
+
+let blockQueryDao = new PostgresBQDao();
 
 export async function exploredQuery(req: Request, res: Response) {
     let query = req.query.query as string;
@@ -11,8 +14,6 @@ export async function exploredQuery(req: Request, res: Response) {
 
     if (!query)
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
-
-    let blockQueryDao = new BlockQuarryDao();
 
     try {
         let results = await blockQueryDao.exploredQuery(query, userId);
@@ -32,7 +33,6 @@ export async function frontierQuery(req: Request, res: Response) {
     if (!query || !dataSource)
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
 
-    let blockQueryDao = new BlockQuarryDao();
     let results = [] as Entry[];
     let recordsPerPage = 200;
 
@@ -61,8 +61,6 @@ export async function discoverEntries(req: Request, res: Response) {
     if (!entries)
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
 
-    let blockQueryDao = new BlockQuarryDao();
-
     try {
         let results = await blockQueryDao.discoverEntries(userId, entries);
         
@@ -74,14 +72,14 @@ export async function discoverEntries(req: Request, res: Response) {
 }
 
 export async function getAllExplored(req: Request, res: Response) {
+    let userId = getUserId(req, res);
     let minQuality = (req.query.minQuality || "1") as string;
     let minObscurity = (req.query.minObscurity || "1") as string;
 
-    let blockQueryDao = new BlockQuarryDao();
     let results = [] as Entry[];
 
     try {
-      results = await blockQueryDao.getAllExplored(minQuality, minObscurity);
+      results = await blockQueryDao.getAllExplored(userId, minQuality, minObscurity);
 
       return res.status(StatusCodes.OK).json(results);
     }

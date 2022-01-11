@@ -1,12 +1,7 @@
 import { Entry } from "@entities/Entry";
 import { TYPES } from "tedious";
+import { IBlockQuarryDao } from "./IBlockQuarryDao";
 import { sqlQuery } from "./sqlServer";
-
-export interface IBlockQuarryDao {
-    exploredQuery: (query: string, userId: string) => Promise<Entry[]>;
-    frontierQuery: (query: string, dataSource: string, page: number, recordsPerPage: number) => Promise<Entry[]>;
-    discoverEntries: (userId: string, entries: Entry[]) => Promise<string>;
-}
 
 class BlockQuarryDao implements IBlockQuarryDao {
     exploredQuery = async (query: string, userId: string) => {
@@ -52,8 +47,9 @@ class BlockQuarryDao implements IBlockQuarryDao {
         return "Done";
     }
 
-    getAllExplored = async (minQuality: string, minObscurity: string) => {
+    getAllExplored = async (userId: string, minQuality: string, minObscurity: string) => {
         let results = await sqlQuery(true, "GetAllExplored", [
+            {name: "UserId", type: TYPES.NVarChar, value: userId},
             {name: "MinQuality", type: TYPES.Int, value: minQuality},
             {name: "MinObscurity", type: TYPES.Int, value: minObscurity},
         ]) as Entry[];
