@@ -10,7 +10,7 @@ import { getHtmlPage, getHtmlString } from 'src/sources/utils';
 let dataDao = new PostgresDataDao();
 
 export async function loadExplored(req: Request, res: Response) {
-    let filePath = "C:\\Users\\ben_z\\Downloads\\AllExplored (2).csv";
+    let filePath = "C:\\Users\\ben_z\\Downloads\\AllExplored (6).csv";
     let entries = [] as Entry[];
     let i = 0;
     
@@ -32,20 +32,17 @@ export async function loadExplored(req: Request, res: Response) {
             } as Entry;
 
             entries.push(entry);
+        });
 
-            if (entries.length % 100 === 0) {
-                lr.pause();
+        lr.on('end', async () => {
+            let batchSize = 1_000;
 
-                let entriesClone = deepClone(entries);
-                dataDao.addExploredEntries(entriesClone).then(() => {
-                    lr.resume();
-                });
-                entries = [];
+            for (let i = 0; i < entries.length; i+= batchSize) {
+                let slice = entries.slice(i, i + batchSize);
+                await dataDao.addExploredEntries(slice);
+                if (i % 10_000 === 0)
+                    console.log(i);
             }
-
-            i++;
-            if (i % 10_000 === 0)
-                console.log(i);
         });
     }
     catch(ex) {

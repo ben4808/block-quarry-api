@@ -40,7 +40,7 @@ class PostgresBQDao implements IBlockQuarryDao {
                 display_text: entry.displayText,
                 quality_score: entry.qualityScore,
                 obscurity_score: entry.obscurityScore,
-                breakfast_test_failure: entry.breakfastTestFailure,
+                breakfast_test_failure: entry.breakfastTestFailure ? 't' : 'f',
             };
         });
 

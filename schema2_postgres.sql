@@ -3,7 +3,7 @@ create table explored (
 	display_text text,
 	quality_score decimal(3, 2),
 	obscurity_score decimal(3, 2),
-    breakfast_test_failure boolean default 0 not null,
+    breakfast_test_failure boolean default 't' not null,
     length int,
     col1 char(1),
     col2 char(1),
@@ -63,7 +63,7 @@ INSERT INTO numbers
         (number)
     SELECT number
         FROM Tally
-        WHERE number <= 10000
+        WHERE number <= 10000;
 
 -- ginsberg, podcasts, nutrimatic, onelook, newspapers, husic
 -- create table <Source> (
@@ -74,7 +74,7 @@ INSERT INTO numbers
 --     length int
 -- );
 
-CREATE INDEX IX_Len_<Source> ON <Source>(length ASC);
+-- CREATE INDEX IX_Len_<Source> ON <Source>(length ASC);
 
 create table ginsberg (
 	entry text not null primary key,
