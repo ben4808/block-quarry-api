@@ -7,7 +7,7 @@ import StatusCodes from 'http-status-codes';
 import LineByLineReader from 'line-by-line';
 import { getHtmlPage, getHtmlString } from 'src/sources/utils';
 
-let dataDao = new SqlServerDataDao();
+let dataDao = new PostgresDataDao();
 
 export async function loadExplored(req: Request, res: Response) {
     let filePath = "C:\\Users\\ben_z\\Downloads\\AllExplored (2).csv";

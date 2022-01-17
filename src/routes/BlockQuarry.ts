@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { scrapeNutrimatic, scrapeOneLook } from './Data';
 
-let blockQueryDao = new BlockQuarryDao();
+let blockQueryDao = new PostgresBQDao();
 
 export async function exploredQuery(req: Request, res: Response) {
     let query = req.query.query as string;

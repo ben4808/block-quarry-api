@@ -3,7 +3,7 @@ import { PostgresParameter } from './PostgresParameter';
 import settings from '../settings.json';
 
 let pool = new Pool({
-    user: 'postgres',
+    user: settings.db_user,
     host: settings.api_base_url,
     database: 'block_quarry',
     password: settings.db_password,
