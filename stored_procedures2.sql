@@ -4,6 +4,7 @@ CREATE TYPE ExploredType AS TABLE
 	[displayText] nvarchar(127),
 	[qualityScore] decimal(3, 2),
 	[obscurityScore] decimal(3, 2),
+    breakfastTestFailure tinyint,
     PRIMARY KEY ([entry])
 )
 GO
@@ -24,17 +25,19 @@ BEGIN
     update ex set
         displayText = et.displayText,
         qualityScore = et.qualityScore,
-        obscurityScore = et.obscurityScore
+        obscurityScore = et.obscurityScore,
+        breakfastTestFailure = et.breakfastTestFailure
 	from Explored ex
 	inner join @Entries et on et.[entry] = ex.[entry];
 
-    insert into Explored ([entry], [displayText], [qualityScore], [obscurityScore], [length]
+    insert into Explored ([entry], [displayText], [qualityScore], [obscurityScore], [breakfastTestFailure], [length],
     col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15)
 	select distinct 
         et.[entry], 
         et.[displayText], 
         et.qualityScore,
         et.obscurityScore,
+        et.breakfastTestFailure,
         len(et.[entry]),
         substring(et.entry, 1, 1),
         substring(et.entry, 2, 1),
@@ -107,7 +110,8 @@ BEGIN
     select @Q = '
     select ex.[entry], ex.displayText, 
     coalesce(ed.qualityScore, ex.qualityScore) as qualityScore, 
-    coalesce(ed.obscurityScore, ex.obscurityScore) as obscurityScore
+    coalesce(ed.obscurityScore, ex.obscurityScore) as obscurityScore,
+    coalesce(ed.breakfastTestFailure, ex.breakfastTestFailure) as breakfastTestFailure
     from Explored ex
     left join Edits ed on ed.[entry] = ex.[entry] and ed.userId = @UserId
     where [length] = len(@Query)
@@ -132,7 +136,7 @@ BEGIN
     from ' + @DataSource + ' ds
     where ds.[length] = len(@Query)
     ' + @Conds
-    + ' order by ds.dataSourceScore desc, ds.entry desc'
+    + ' order by ds.dataSourceScore desc, ds.entry'
     + ' OFFSET ((@Page - 1)*@RecordsPerPage) ROWS FETCH NEXT @RecordsPerPage ROWS ONLY';
 
 	declare @Q1 nvarchar(max) = concat('insert into #resultsTable select ds.[entry], ds.displayText, ds.dataSourceScore, (ds.[views]-1) as [views] ', @Q);
@@ -157,13 +161,14 @@ CREATE PROCEDURE [dbo].[DiscoverEntries]
     @Entries dbo.ExploredType readonly
 AS
 BEGIN
-    insert into Explored ([entry], displayText, qualityScore, obscurityScore, [length],
+    insert into Explored ([entry], displayText, qualityScore, obscurityScore, breakfastTestFailure, [length],
     col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15)
     select distinct 
         et.[entry], 
         et.[displayText], 
         et.qualityScore,
         et.obscurityScore,
+        et.breakfastTestFailure,
         len(et.[entry]),
         substring(et.entry, 1, 1),
         substring(et.entry, 2, 1),
@@ -186,18 +191,20 @@ BEGIN
     update ed set [displayText] = isnull(et.displayText, ed.displayText), 
         qualityScore = isnull(et.qualityScore, ed.qualityScore),
         obscurityScore = isnull(et.obscurityScore, ed.obscurityScore), 
+        breakfastTestFailure = isnull(et.breakfastTestFailure, ed.breakfastTestFailure),
         modifiedDate = getDate()
     from Edits ed
     inner join @Entries et on et.[entry] = ed.[entry] 
 	where ed.UserId = @UserId;
 
-    insert into Edits ([entry], userId, displayText, qualityScore, obscurityScore, modifiedDate)
+    insert into Edits ([entry], userId, displayText, qualityScore, obscurityScore, breakfastTestFailure, modifiedDate)
     select
         et.[entry],
         @UserId,
         et.displayText,
         et.qualityScore,
         et.obscurityScore,
+        et.breakfastTestFailure,
         getdate()
     from @Entries et
     where not exists(select 1 from Edits where [entry] = et.[entry] and UserId = @UserId);
@@ -205,7 +212,8 @@ BEGIN
     update ex set
 		displayText = isnull(et.displayText, ex.displayText),
         qualityScore = isnull(calc.qualityScore, ex.qualityScore),
-        obscurityScore = isnull(calc.obscurityScore, ex.obscurityScore)
+        obscurityScore = isnull(calc.obscurityScore, ex.obscurityScore),
+        breakfastTestFailure = isnull(et.breakfastTestFailure, ex.breakfastTestFailure)
     from Explored ex
     inner join @Entries et on et.[entry] = ex.[entry]
     inner join (
@@ -227,7 +235,8 @@ BEGIN
 	select ex.[entry], 
         isnull(ed.displayText, ex.displayText) as displayText,
         isnull(ed.qualityScore, ex.qualityScore) as qualityScore,
-        isnull(ed.obscurityScore, ex.obscurityScore) as obscurityScore
+        isnull(ed.obscurityScore, ex.obscurityScore) as obscurityScore,
+        isnull(ed.breakfastTestFailure, ex.breakfastTestFailure) as breakfastTestFailure
 	from Explored ex
     left join Edits ed on ed.[entry] = ex.[entry] and ed.[userId] = @UserId
 	where isnull(ed.qualityScore, ex.qualityScore) >= @MinQuality 
@@ -235,19 +244,3 @@ BEGIN
     order by [entry];
 END
 GO
-
-drop table #TestEntries;
-
-create table #TestEntries (
-	[entry] nvarchar(127) not null primary key,
-	[displayText] nvarchar(127),
-	qualityScore decimal(3, 2),
-	obscurityScore decimal(3, 2)
-);
-
-insert into #TestEntries ([entry], displayText, qualityScore, obscurityScore)
-values
-('TESTA', 'testa', 1, 1),
-('TESTO', 'Testo', 1, 2);
-
-declare @UserId nvarchar(127) = 'bzoon';

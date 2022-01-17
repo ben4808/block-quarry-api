@@ -3,6 +3,7 @@ create table [Explored] (
 	[displayText] nvarchar(127),
 	qualityScore decimal(3, 2),
 	obscurityScore decimal(3, 2),
+    breakfastTestFailure tinyint not null default 0,
     [length] int,
     col1 char(1),
     col2 char(1),
@@ -56,6 +57,7 @@ create table Edits (
     displayText nvarchar(127),
     qualityScore tinyint,
     obscurityScore tinyint,
+    breakfastTestFailure tinyint,
     [modifiedDate] datetime not null,
     primary key([entry], userId)
 );

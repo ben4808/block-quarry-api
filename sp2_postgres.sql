@@ -9,22 +9,25 @@ begin
 	DROP TABLE IF EXISTS input_entries;
 	create temp table input_entries as
 	select * from jsonb_to_recordset(entries::jsonb)
-	as x(entry text, display_text text, quality_score decimal(3, 2), obscurity_score decimal(3, 2));
+	as x(entry text, display_text text, quality_score decimal(3, 2), 
+        obscurity_score decimal(3, 2), breakfast_test_failure boolean);
 
     update explored ex set
         display_text = et.display_text,
         quality_score = et.quality_score,
-        obscurity_score = et.obscurity_score
+        obscurity_score = et.obscurity_score,
+        breakfast_test_failure = et.breakfast_test_failure
 	from input_entries et 
 	where et.entry = ex.entry;
 
-    insert into explored (entry, display_text, quality_score, obscurity_score, length,
+    insert into explored (entry, display_text, quality_score, obscurity_score, breakfast_test_failure, length,
     col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15)
 	select distinct 
         et.entry, 
         et.display_text, 
         et.quality_score,
         et.obscurity_score,
+        et.breakfast_test_failure,
         length(et.entry),
         substring(et.entry, 1, 1),
         substring(et.entry, 2, 1),
@@ -91,7 +94,8 @@ CREATE OR REPLACE FUNCTION public.explored_query(
 		entry text,
 		display_text text,
 		quality_score decimal(3, 2),
-		obscurity_score decimal(3, 2)
+		obscurity_score decimal(3, 2),
+        breakfast_test_failure boolean
 	)
     LANGUAGE 'plpgsql'
     COST 100
@@ -117,7 +121,8 @@ begin
 	q := concat('
     select ex.entry, ex.display_text, 
     coalesce(ed.quality_score, ex.quality_score) as quality_score, 
-    coalesce(ed.obscurity_score, ex.obscurity_score) as obscurity_score
+    coalesce(ed.obscurity_score, ex.obscurity_score) as obscurity_score,
+    coalesce(ed.breakfast_test_failure, ex.breakfast_test_failure) as breakfast_test_failure
     from explored ex
     left join edits ed on ed.entry = ex.entry and ed.user_id = $2
     where ex.length = length($1)
@@ -153,7 +158,7 @@ begin
 	q := concat('from ', data_source,  ' ds
     where ds.length = length($1)
     ', conds
-    , ' order by ds.data_source_score desc, ds.entry desc'
+    , ' order by ds.data_source_score desc, ds.entry'
     , ' offset (($2 - 1)*$3) limit $3');
 	
     q1 := concat('insert into results_table select ds.entry, ds.display_text, ds.data_source_score, (ds.views-1) as views ', q);
@@ -186,15 +191,17 @@ begin
 	DROP TABLE IF EXISTS input_entries;
 	create temp table input_entries as
 	select * from jsonb_to_recordset(entries::jsonb)
-	as x(entry text, display_text text, quality_score decimal(3, 2), obscurity_score decimal(3, 2));
+	as x(entry text, display_text text, quality_score decimal(3, 2), obscurity_score decimal(3, 2)
+        , breakfast_test_failure boolean);
 	
-	insert into explored (entry, display_text, quality_score, obscurity_score, length,
+	insert into explored (entry, display_text, quality_score, obscurity_score, breakfast_test_failure, length,
     col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15)
     select distinct 
         et.entry, 
         et.display_text, 
         et.quality_score,
         et.obscurity_score,
+        et.breakfast_test_failure,
         length(et.entry),
         substring(et.entry, 1, 1),
         substring(et.entry, 2, 1),
@@ -218,17 +225,19 @@ begin
 		display_text = coalesce(et.display_text, ed.display_text), 
         quality_score = coalesce(et.quality_score, ed.quality_score),
         obscurity_score = coalesce(et.obscurity_score, ed.obscurity_score), 
+        breakfast_test_failure = coalesce(et.breakfast_test_failure, ed.breakfast_test_failure),
         modified_date = now()
     from input_entries et 
 	where et.entry = ed.entry and ed.user_id = user_id_input;
 
-    insert into edits (entry, user_id, display_text, quality_score, obscurity_score, modified_date)
+    insert into edits (entry, user_id, display_text, quality_score, obscurity_score, breakfast_test_failure, modified_date)
     select
         et.entry,
         user_id_input,
         et.display_text,
         et.quality_score,
         et.obscurity_score,
+        et.breakfast_test_failure,
         now()
     from input_entries et
     where not exists(select 1 from edits where entry = et.entry and user_id = user_id_input);
@@ -236,7 +245,8 @@ begin
     update explored ex set
 		display_text = coalesce(et.display_text, ex.display_text),
         quality_score = coalesce(calc.quality_score, ex.quality_score),
-        obscurity_score = coalesce(calc.obscurity_score, ex.obscurity_score)
+        obscurity_score = coalesce(calc.obscurity_score, ex.obscurity_score),
+        breakfast_test_failure = coalesce(et.breakfast_test_failure, ex.breakfast_test_failure)
     from input_entries et 
     inner join (
         select ed.entry,
@@ -253,7 +263,8 @@ CREATE OR REPLACE FUNCTION public.get_all_explored(
 	user_id_input text,
 	min_quality integer,
 	min_obscurity integer)
-    RETURNS TABLE(entry text, display_text text, quality_score numeric, obscurity_score numeric) 
+    RETURNS TABLE(entry text, display_text text, quality_score numeric, obscurity_score numeric, 
+        breakfast_test_failure boolean) 
     LANGUAGE 'plpgsql'
     COST 100
     VOLATILE PARALLEL UNSAFE
@@ -264,7 +275,8 @@ begin
 	return query select ex.entry, 
         coalesce(ed.display_text, ex.display_text) as display_text,
         coalesce(ed.quality_score, ex.quality_score) as quality_score,
-        coalesce(ed.obscurity_score, ex.obscurity_score) as obscurity_score
+        coalesce(ed.obscurity_score, ex.obscurity_score) as obscurity_score,
+        coalesce(ed.breakfast_test_failure, ex.breakfast_test_failure) as breakfast_test_failure
 	from explored ex
     left join edits ed on ed.entry = ex.entry and ed.user_id = user_id_input
 	where coalesce(ed.quality_score, ex.quality_score) >= min_quality 

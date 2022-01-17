@@ -10,6 +10,7 @@ class PostgresDataDao implements IDataDao {
                 display_text: entry.displayText,
                 quality_score: entry.qualityScore || 3,
                 obscurity_score: entry.obscurityScore || 3,
+                breakfast_test_failure: entry.breakfastTestFailure || 0,
             };
         });
 

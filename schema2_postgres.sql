@@ -3,6 +3,7 @@ create table explored (
 	display_text text,
 	quality_score decimal(3, 2),
 	obscurity_score decimal(3, 2),
+    breakfast_test_failure boolean default 0 not null,
     length int,
     col1 char(1),
     col2 char(1),
@@ -44,6 +45,7 @@ create table edits (
     display_text text,
     quality_score smallint,
     obscurity_score smallint,
+    breakfast_test_failure boolean,
     modified_date timestamp not null,
     primary key(entry, user_id)
 );

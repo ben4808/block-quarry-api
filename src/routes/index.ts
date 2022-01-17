@@ -11,7 +11,7 @@ apiRouter.get('/scrapeCrosswordTracker', scrapeCrosswordTracker);
 
 // Data loading routes
 apiRouter.get('/loadExplored', loadExplored);
-apiRouter.get('/loadDataSource', loadGinsberg);
+apiRouter.get('/loadDataSource', loadPodcasts);
 
 // Puzzle-routes
 apiRouter.get('/puzzlesOfWeek', getPuzzlesOfWeek);

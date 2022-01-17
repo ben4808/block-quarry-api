@@ -4,4 +4,5 @@ export interface Entry {
     qualityScore?: number;
     obscurityScore?: number;
     dataSourceScore?: number;
+    breakfastTestFailure?: boolean;
 }

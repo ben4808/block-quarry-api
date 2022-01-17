@@ -1,4 +1,5 @@
 import PostgresDataDao from '@daos/PostgresDataDao';
+import SqlServerDataDao from '@daos/SqlServerDataDao';
 import { Entry } from '@entities/Entry';
 import { deepClone, mapKeys } from '@shared/utils';
 import { Request, Response } from 'express';
@@ -6,7 +7,7 @@ import StatusCodes from 'http-status-codes';
 import LineByLineReader from 'line-by-line';
 import { getHtmlPage, getHtmlString } from 'src/sources/utils';
 
-let dataDao = new PostgresDataDao();
+let dataDao = new SqlServerDataDao();
 
 export async function loadExplored(req: Request, res: Response) {
     let filePath = "C:\\Users\\ben_z\\Downloads\\AllExplored (2).csv";
@@ -20,13 +21,14 @@ export async function loadExplored(req: Request, res: Response) {
         });
         
         lr.on('line', (line) => {
-            let match = /^([A-Z]+),"(.*)",([0-9.]+),([0-9.]+)/g.exec(line)!;
+            let match = /^([A-Z]+),"(.*)",([0-9.]+),([0-9.]+),([0|1])/g.exec(line)!;
             if (!match) return;
             let entry = {
                 entry: match[1],
                 displayText: match[2],
                 qualityScore: +match[3],
                 obscurityScore: +match[4],
+                breakfastTestFailure: match[5] === '1',
             } as Entry;
 
             entries.push(entry);
