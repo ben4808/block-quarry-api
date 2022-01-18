@@ -1,18 +1,10 @@
 import './pre-start'; // Must be the first import
 import app from '@server';
 import logger from 'src/lib/Logger';
-import fs from 'fs';
-import https from 'https';
-
-var privateKey = fs.readFileSync('server-key-pem', 'utf8');
-var certificate = fs.readFileSync('server-cert.pem', 'utf8');
-var credentials = {key: privateKey, cert: certificate};
-
-var httpsServer = https.createServer(credentials, app);
 
 // Start the server
-const port = 443;
-httpsServer.listen(port, () => {
+const port = 80;
+app.listen(port, () => {
     logger.info('Express server started on port: ' + port);
 });
 
