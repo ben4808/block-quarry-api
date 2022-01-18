@@ -1,7 +1,6 @@
 import BlockQuarryDao from '@daos/BlockQuarryDao';
 import PostgresBQDao from '@daos/PostgresBQDao';
 import { Entry } from '@entities/Entry';
-import { generateId } from '@shared/utils';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { scrapeNutrimatic, scrapeOneLook } from './Data';
@@ -10,11 +9,11 @@ let blockQueryDao = new PostgresBQDao();
 
 export async function exploredQuery(req: Request, res: Response) {
     let query = req.query.query as string;
-    query = query.replace(/[^A-Z.]/g, "");
-    let userId = getUserId(req, res);
-
     if (!query)
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
+
+    query = query.replace(/[^A-Z.]/g, "");
+    let userId = getUserId(req, res);
 
     try {
         let results = await blockQueryDao.exploredQuery(query, userId);
@@ -28,14 +27,12 @@ export async function exploredQuery(req: Request, res: Response) {
 
 export async function frontierQuery(req: Request, res: Response) {
     let query = req.query.query as string;
-    query = query.replace(/[^A-Z.]/g, "");
     let dataSource = req.query.dataSource as string;
-    if (!["Podcasts", "Ginsberg", "Newspapers", "Nutrimatic", "OneLook", "Husic"].includes(dataSource))
-        dataSource = "";
-    let page = (req.query.page ? +req.query.page! : 1) as number;
-
-    if (!query || !dataSource)
+    if (!query || !dataSource || !["Podcasts", "Ginsberg", "Newspapers", "Nutrimatic", "OneLook", "Husic"].includes(dataSource))
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
+
+    query = query.replace(/[^A-Z.]/g, "");
+    let page = (req.query.page ? +req.query.page! : 1) as number;
 
     let results = [] as Entry[];
     let recordsPerPage = 200;
@@ -62,11 +59,11 @@ export async function discoverEntries(req: Request, res: Response) {
     let userId = getUserId(req, res);
     let entries = req.body! as Entry[];
 
-    entries = entries.filter(entry => 
-        !entry.displayText || entry.displayText.toUpperCase().replace(/[^A-Z]/g, "") === entry.entry);
-
     if (!entries)
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
+
+    entries = entries.filter(entry => 
+        !entry.displayText || entry.displayText.toUpperCase().replace(/[^A-Z]/g, "") === entry.entry);
 
     try {
         let results = await blockQueryDao.discoverEntries(userId, entries);
