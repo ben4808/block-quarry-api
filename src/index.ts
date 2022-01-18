@@ -11,7 +11,7 @@ import logger from 'src/lib/Logger';
 // var httpsServer = https.createServer(credentials, app);
 
 // Start the server
-const port = 443;
+const port = 80;
 app.listen(port, () => {
     logger.info('Express server started on port: ' + port);
 });
