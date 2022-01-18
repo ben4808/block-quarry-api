@@ -99,9 +99,7 @@ function getUserId(req: any, res: any): string {
     let cookieKey = "block_quarry_user";
     let userId = req.cookies[cookieKey];
     if (!userId) {
-        userId = generateId();
-        let oneYear = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-        res.cookie(cookieKey, userId, {expires: oneYear, sameSite: 'none', secure: true});
+        return "dummy";
     }
 
     return userId;
