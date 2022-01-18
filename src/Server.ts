@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(cors({
-    origin: ["http://localhost:3000", "http://blockquarry.net"],
+    origin: ["http://localhost:3000", "https://blockquarry.net"],
     credentials: true,
 }));
 
