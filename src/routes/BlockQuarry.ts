@@ -10,6 +10,7 @@ let blockQueryDao = new PostgresBQDao();
 
 export async function exploredQuery(req: Request, res: Response) {
     let query = req.query.query as string;
+    query = query.replace(/[^A-Z.]/g, "");
     let userId = getUserId(req, res);
 
     if (!query)
@@ -27,7 +28,10 @@ export async function exploredQuery(req: Request, res: Response) {
 
 export async function frontierQuery(req: Request, res: Response) {
     let query = req.query.query as string;
+    query = query.replace(/[^A-Z.]/g, "");
     let dataSource = req.query.dataSource as string;
+    if (!["Podcasts", "Ginsberg", "Newspapers", "Nutrimatic", "OneLook", "Husic"].includes(dataSource))
+        dataSource = "";
     let page = (req.query.page ? +req.query.page! : 1) as number;
 
     if (!query || !dataSource)
@@ -57,6 +61,9 @@ export async function frontierQuery(req: Request, res: Response) {
 export async function discoverEntries(req: Request, res: Response) {
     let userId = getUserId(req, res);
     let entries = req.body! as Entry[];
+
+    entries = entries.filter(entry => 
+        !entry.displayText || entry.displayText.toUpperCase().replace(/[^A-Z]/g, "") === entry.entry);
 
     if (!entries)
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);

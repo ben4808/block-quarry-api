@@ -19,7 +19,7 @@ class PostgresBQDao implements IBlockQuarryDao {
     }
 
     frontierQuery = async (query: string, dataSource: string, page: number, recordsPerPage: number) => {
-        let results = await sqlQuery(true, "frontier_query", [
+        let results = await sqlQuery(true, "frontier_query_indexed", [
             {name: "query", value: query},
             {name: "data_source", value: dataSource.toLowerCase()},
             {name: "page", value: page.toString()},

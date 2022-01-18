@@ -66,72 +66,243 @@ INSERT INTO numbers
         WHERE number <= 10000;
 
 -- ginsberg, podcasts, nutrimatic, onelook, newspapers, husic
--- create table <Source> (
--- 	entry text not null primary key,
--- 	display_text text,
---     data_source_score int,
---     views int,
---     length int
--- );
-
--- CREATE INDEX IX_Len_<Source> ON <Source>(length ASC);
 
 create table ginsberg (
 	entry text not null primary key,
 	display_text text,
     data_source_score int,
     views int,
-    length int
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
 );
 
 CREATE INDEX IX_Len_ginsberg ON ginsberg(length ASC);
+CREATE INDEX IX_Col1_ginsberg ON ginsberg(col1 ASC);
+CREATE INDEX IX_Col2_ginsberg ON ginsberg(col2 ASC);
+CREATE INDEX IX_Col3_ginsberg ON ginsberg(col3 ASC);
+CREATE INDEX IX_Col4_ginsberg ON ginsberg(col4 ASC);
+CREATE INDEX IX_Col5_ginsberg ON ginsberg(col5 ASC);
+CREATE INDEX IX_Col6_ginsberg ON ginsberg(col6 ASC);
+CREATE INDEX IX_Col7_ginsberg ON ginsberg(col7 ASC);
+CREATE INDEX IX_Col8_ginsberg ON ginsberg(col8 ASC);
+CREATE INDEX IX_Col9_ginsberg ON ginsberg(col9 ASC);
+CREATE INDEX IX_Col10_ginsberg ON ginsberg(col10 ASC);
+CREATE INDEX IX_Col11_ginsberg ON ginsberg(col11 ASC);
+CREATE INDEX IX_Col12_ginsberg ON ginsberg(col12 ASC);
+CREATE INDEX IX_Col13_ginsberg ON ginsberg(col13 ASC);
+CREATE INDEX IX_Col14_ginsberg ON ginsberg(col14 ASC);
+CREATE INDEX IX_Col15_ginsberg ON ginsberg(col15 ASC);
 
 create table podcasts (
 	entry text not null primary key,
 	display_text text,
     data_source_score int,
     views int,
-    length int
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
 );
 
 CREATE INDEX IX_Len_podcasts ON podcasts(length ASC);
+CREATE INDEX IX_Col1_podcasts ON podcasts(col1 ASC);
+CREATE INDEX IX_Col2_podcasts ON podcasts(col2 ASC);
+CREATE INDEX IX_Col3_podcasts ON podcasts(col3 ASC);
+CREATE INDEX IX_Col4_podcasts ON podcasts(col4 ASC);
+CREATE INDEX IX_Col5_podcasts ON podcasts(col5 ASC);
+CREATE INDEX IX_Col6_podcasts ON podcasts(col6 ASC);
+CREATE INDEX IX_Col7_podcasts ON podcasts(col7 ASC);
+CREATE INDEX IX_Col8_podcasts ON podcasts(col8 ASC);
+CREATE INDEX IX_Col9_podcasts ON podcasts(col9 ASC);
+CREATE INDEX IX_Col10_podcasts ON podcasts(col10 ASC);
+CREATE INDEX IX_Col11_podcasts ON podcasts(col11 ASC);
+CREATE INDEX IX_Col12_podcasts ON podcasts(col12 ASC);
+CREATE INDEX IX_Col13_podcasts ON podcasts(col13 ASC);
+CREATE INDEX IX_Col14_podcasts ON podcasts(col14 ASC);
+CREATE INDEX IX_Col15_podcasts ON podcasts(col15 ASC);
 
 create table nutrimatic (
 	entry text not null primary key,
 	display_text text,
     data_source_score int,
     views int,
-    length int
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
 );
 
 CREATE INDEX IX_Len_nutrimatic ON nutrimatic(length ASC);
+CREATE INDEX IX_Col1_nutrimatic ON nutrimatic(col1 ASC);
+CREATE INDEX IX_Col2_nutrimatic ON nutrimatic(col2 ASC);
+CREATE INDEX IX_Col3_nutrimatic ON nutrimatic(col3 ASC);
+CREATE INDEX IX_Col4_nutrimatic ON nutrimatic(col4 ASC);
+CREATE INDEX IX_Col5_nutrimatic ON nutrimatic(col5 ASC);
+CREATE INDEX IX_Col6_nutrimatic ON nutrimatic(col6 ASC);
+CREATE INDEX IX_Col7_nutrimatic ON nutrimatic(col7 ASC);
+CREATE INDEX IX_Col8_nutrimatic ON nutrimatic(col8 ASC);
+CREATE INDEX IX_Col9_nutrimatic ON nutrimatic(col9 ASC);
+CREATE INDEX IX_Col10_nutrimatic ON nutrimatic(col10 ASC);
+CREATE INDEX IX_Col11_nutrimatic ON nutrimatic(col11 ASC);
+CREATE INDEX IX_Col12_nutrimatic ON nutrimatic(col12 ASC);
+CREATE INDEX IX_Col13_nutrimatic ON nutrimatic(col13 ASC);
+CREATE INDEX IX_Col14_nutrimatic ON nutrimatic(col14 ASC);
+CREATE INDEX IX_Col15_nutrimatic ON nutrimatic(col15 ASC);
 
 create table onelook (
 	entry text not null primary key,
 	display_text text,
     data_source_score int,
     views int,
-    length int
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
 );
 
 CREATE INDEX IX_Len_onelook ON onelook(length ASC);
+CREATE INDEX IX_Col1_onelook ON onelook(col1 ASC);
+CREATE INDEX IX_Col2_onelook ON onelook(col2 ASC);
+CREATE INDEX IX_Col3_onelook ON onelook(col3 ASC);
+CREATE INDEX IX_Col4_onelook ON onelook(col4 ASC);
+CREATE INDEX IX_Col5_onelook ON onelook(col5 ASC);
+CREATE INDEX IX_Col6_onelook ON onelook(col6 ASC);
+CREATE INDEX IX_Col7_onelook ON onelook(col7 ASC);
+CREATE INDEX IX_Col8_onelook ON onelook(col8 ASC);
+CREATE INDEX IX_Col9_onelook ON onelook(col9 ASC);
+CREATE INDEX IX_Col10_onelook ON onelook(col10 ASC);
+CREATE INDEX IX_Col11_onelook ON onelook(col11 ASC);
+CREATE INDEX IX_Col12_onelook ON onelook(col12 ASC);
+CREATE INDEX IX_Col13_onelook ON onelook(col13 ASC);
+CREATE INDEX IX_Col14_onelook ON onelook(col14 ASC);
+CREATE INDEX IX_Col15_onelook ON onelook(col15 ASC);
 
 create table newspapers (
 	entry text not null primary key,
 	display_text text,
     data_source_score int,
     views int,
-    length int
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
 );
 
 CREATE INDEX IX_Len_newspapers ON newspapers(length ASC);
+CREATE INDEX IX_Col1_newspapers ON newspapers(col1 ASC);
+CREATE INDEX IX_Col2_newspapers ON newspapers(col2 ASC);
+CREATE INDEX IX_Col3_newspapers ON newspapers(col3 ASC);
+CREATE INDEX IX_Col4_newspapers ON newspapers(col4 ASC);
+CREATE INDEX IX_Col5_newspapers ON newspapers(col5 ASC);
+CREATE INDEX IX_Col6_newspapers ON newspapers(col6 ASC);
+CREATE INDEX IX_Col7_newspapers ON newspapers(col7 ASC);
+CREATE INDEX IX_Col8_newspapers ON newspapers(col8 ASC);
+CREATE INDEX IX_Col9_newspapers ON newspapers(col9 ASC);
+CREATE INDEX IX_Col10_newspapers ON newspapers(col10 ASC);
+CREATE INDEX IX_Col11_newspapers ON newspapers(col11 ASC);
+CREATE INDEX IX_Col12_newspapers ON newspapers(col12 ASC);
+CREATE INDEX IX_Col13_newspapers ON newspapers(col13 ASC);
+CREATE INDEX IX_Col14_newspapers ON newspapers(col14 ASC);
+CREATE INDEX IX_Col15_newspapers ON newspapers(col15 ASC);
 
 create table husic (
 	entry text not null primary key,
 	display_text text,
     data_source_score int,
     views int,
-    length int
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
 );
 
 CREATE INDEX IX_Len_husic ON husic(length ASC);
+CREATE INDEX IX_Col1_husic ON husic(col1 ASC);
+CREATE INDEX IX_Col2_husic ON husic(col2 ASC);
+CREATE INDEX IX_Col3_husic ON husic(col3 ASC);
+CREATE INDEX IX_Col4_husic ON husic(col4 ASC);
+CREATE INDEX IX_Col5_husic ON husic(col5 ASC);
+CREATE INDEX IX_Col6_husic ON husic(col6 ASC);
+CREATE INDEX IX_Col7_husic ON husic(col7 ASC);
+CREATE INDEX IX_Col8_husic ON husic(col8 ASC);
+CREATE INDEX IX_Col9_husic ON husic(col9 ASC);
+CREATE INDEX IX_Col10_husic ON husic(col10 ASC);
+CREATE INDEX IX_Col11_husic ON husic(col11 ASC);
+CREATE INDEX IX_Col12_husic ON husic(col12 ASC);
+CREATE INDEX IX_Col13_husic ON husic(col13 ASC);
+CREATE INDEX IX_Col14_husic ON husic(col14 ASC);
+CREATE INDEX IX_Col15_husic ON husic(col15 ASC);

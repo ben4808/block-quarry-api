@@ -72,20 +72,17 @@ export async function loadGinsberg(req: Request, res: Response) {
             } as Entry;
 
             entries.push(entry);
-            
-            if (entries.length % 1000 === 0) {
-                lr.pause();
+        });
 
-                let entriesClone = deepClone(entries);
-                dataDao.addDataSourceEntries("Ginsberg", entriesClone).then(() => {
-                    lr.resume();
-                });
-                entries = [];
+        lr.on('end', async () => {
+            let batchSize = 1_000;
+
+            for (let i = 0; i < entries.length; i+= batchSize) {
+                let slice = entries.slice(i, i + batchSize);
+                await dataDao.addDataSourceEntries("Ginsberg", slice);
+                if (i % 10_000 === 0)
+                    console.log(i);
             }
-
-            i++;
-            if (i % 10000 === 0)
-                console.log(i);
         });
     }
     catch(ex) {
@@ -115,20 +112,17 @@ export async function loadPodcasts(req: Request, res: Response) {
             } as Entry;
 
             entries.push(entry);
-            
-            if (entries.length % 100 === 0) {
-                lr.pause();
+        });
 
-                let entriesClone = deepClone(entries);
-                dataDao.addDataSourceEntries("Podcasts", entriesClone).then(() => {
-                    lr.resume();
-                });
-                entries = [];
+        lr.on('end', async () => {
+            let batchSize = 1_000;
+
+            for (let i = 0; i < entries.length; i+= batchSize) {
+                let slice = entries.slice(i, i + batchSize);
+                await dataDao.addDataSourceEntries("Podcasts", slice);
+                if (i % 10_000 === 0)
+                    console.log(i);
             }
-
-            i++;
-            if (i % 10000 === 0)
-                console.log(i);
         });
     }
     catch(ex) {
@@ -195,6 +189,46 @@ export async function scrapeCrosswordTracker(req: Request, res: Response) {
   catch(ex) {
     return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
   }
+}
+
+export async function loadNewspapers(req: Request, res: Response) {
+    let filePath = "C:\\Users\\ben_z\\Downloads\\newspapers_data.txt";
+    let entries = [] as Entry[];
+    let i = 0;
+    
+    try {
+        let lr = new LineByLineReader(filePath);
+        lr.on('error', function (err) {
+            console.log("ERROR: " + err);
+        });
+        
+        lr.on('line', (line) => {
+            let match = /^([A-Z0-9]+), "(.*)"/g.exec(line)!;
+            if (!match) return;
+            if (/[0-9]/.exec(match[1])) return;
+            let entry = {
+                entry: match[1],
+                displayText: match[2],
+                dataSourceScore: 10,
+            } as Entry;
+
+            entries.push(entry);
+        });
+
+        lr.on('end', async () => {
+            let batchSize = 1_000;
+
+            for (let i = 0; i < entries.length; i+= batchSize) {
+                let slice = entries.slice(i, i + batchSize);
+                await dataDao.addDataSourceEntries("Newspapers", slice);
+                if (i % 10_000 === 0)
+                    console.log(i);
+            }
+        });
+    }
+    catch(ex) {
+        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
 }
 
 export async function scrapeNutrimatic(query: string, page?: number): Promise<Entry[]> {
@@ -309,20 +343,17 @@ export async function loadHusic(req: Request, res: Response) {
             } as Entry;
 
             entries.push(entry);
-            
-            if (entries.length % 100 === 0) {
-                lr.pause();
+        });
 
-                let entriesClone = deepClone(entries);
-                dataDao.addDataSourceEntries("Husic", entriesClone).then(() => {
-                    lr.resume();
-                });
-                entries = [];
+        lr.on('end', async () => {
+            let batchSize = 1_000;
+
+            for (let i = 0; i < entries.length; i+= batchSize) {
+                let slice = entries.slice(i, i + batchSize);
+                await dataDao.addDataSourceEntries("Husic", slice);
+                if (i % 10_000 === 0)
+                    console.log(i);
             }
-
-            i++;
-            if (i % 10000 === 0)
-                console.log(i);
         });
     }
     catch(ex) {

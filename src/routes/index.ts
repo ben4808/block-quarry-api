@@ -1,22 +1,23 @@
 import { Router } from 'express';
 import { discoverEntries, exploredQuery, frontierQuery, getAllExplored } from './BlockQuarry';
-import { loadExplored, loadGinsberg, loadHusic, loadPodcasts, scrapeCrosswordTracker } from './Data';
+import { loadExplored, loadGinsberg, loadHusic, loadNewspapers, loadPodcasts, scrapeCrosswordTracker } from './Data';
 import { getPuzzlesByAuthor, getPuzzlesByPublication, getPuzzlesOfWeek } from './Puzzles';
 import { scrapePuzzles } from './Scrapers';
 
-// Scraper-route
 const apiRouter = Router();
-apiRouter.get('/scrape', scrapePuzzles);
-apiRouter.get('/scrapeCrosswordTracker', scrapeCrosswordTracker);
+
+// Scraper-route
+// apiRouter.get('/scrape', scrapePuzzles);
+// apiRouter.get('/scrapeCrosswordTracker', scrapeCrosswordTracker);
 
 // Data loading routes
-apiRouter.get('/loadExplored', loadExplored);
-apiRouter.get('/loadDataSource', loadPodcasts);
+// apiRouter.get('/loadExplored', loadExplored);
+// apiRouter.get('/loadDataSource', loadHusic);
 
 // Puzzle-routes
-apiRouter.get('/puzzlesOfWeek', getPuzzlesOfWeek);
-apiRouter.get('/puzzlesByAuthor', getPuzzlesByAuthor);
-apiRouter.get('/puzzlesByPublication', getPuzzlesByPublication);
+// apiRouter.get('/puzzlesOfWeek', getPuzzlesOfWeek);
+// apiRouter.get('/puzzlesByAuthor', getPuzzlesByAuthor);
+// apiRouter.get('/puzzlesByPublication', getPuzzlesByPublication);
 
 // Block Quarry routes
 apiRouter.get('/exploredQuery', exploredQuery);
