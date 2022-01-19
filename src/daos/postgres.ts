@@ -17,9 +17,6 @@ export async function sqlQuery(isSP: boolean, sqlOrSP: string, parameters?: Post
         paramsArray = parameters.map(p => p.value);
 
     if (isSP) {
-        if (paramsArray[0].includes("'")) {
-            let a = 5;
-        }
         let paramsStr = paramsArray.map(x => "'" + x.replace(/'/g, "''") + "'").join(", ");
         paramsArray = [];
         sqlText = `select * from ${sqlOrSP}(${paramsStr})`;
