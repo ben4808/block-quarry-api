@@ -28,7 +28,8 @@ export async function exploredQuery(req: Request, res: Response) {
 export async function frontierQuery(req: Request, res: Response) {
     let query = req.query.query as string;
     let dataSource = req.query.dataSource as string;
-    if (!query || !dataSource || !["Podcasts", "Ginsberg", "Newspapers", "Nutrimatic", "OneLook", "Husic"].includes(dataSource))
+    if (!query || !dataSource || !["Podcasts", "Ginsberg", "Newspapers", 
+        "Nutrimatic", "OneLook", "Husic", "Jeopardy", "Fortune", "Twitter"].includes(dataSource))
         return res.status(StatusCodes.OK).json(`{'message': 'Failed: Improper parameters.'}`);
 
     query = query.replace(/[^A-Z.]/g, "");

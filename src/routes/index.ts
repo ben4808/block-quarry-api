@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { discoverEntries, exploredQuery, frontierQuery, getAllExplored } from './BlockQuarry';
-import { loadExplored, loadGinsberg, loadHusic, loadNewspapers, loadPodcasts, scrapeCrosswordTracker } from './Data';
+import { loadExplored, loadFortune, loadGinsberg, loadHusic, loadJArchive, loadNewspapers, loadPodcasts, loadTwitter, scrapeCrosswordTracker, scrapeJArchive, scrapeTwitterTrends, scrapeWheelOfFortune } from './Data';
 import { getPuzzlesByAuthor, getPuzzlesByPublication, getPuzzlesOfWeek } from './Puzzles';
 import { scrapePuzzles } from './Scrapers';
 
@@ -9,10 +9,11 @@ const apiRouter = Router();
 // Scraper-route
 // apiRouter.get('/scrape', scrapePuzzles);
 // apiRouter.get('/scrapeCrosswordTracker', scrapeCrosswordTracker);
+// apiRouter.get('/scrapeJArchive', scrapeTwitterTrends);
 
 // Data loading routes
 // apiRouter.get('/loadExplored', loadExplored);
-// apiRouter.get('/loadDataSource', loadHusic);
+// apiRouter.get('/loadDataSource', loadTwitter);
 
 // Puzzle-routes
 // apiRouter.get('/puzzlesOfWeek', getPuzzlesOfWeek);

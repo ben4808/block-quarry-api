@@ -306,3 +306,123 @@ CREATE INDEX IX_Col12_husic ON husic(col12 ASC);
 CREATE INDEX IX_Col13_husic ON husic(col13 ASC);
 CREATE INDEX IX_Col14_husic ON husic(col14 ASC);
 CREATE INDEX IX_Col15_husic ON husic(col15 ASC);
+
+create table jeopardy (
+	entry text not null primary key,
+	display_text text,
+    data_source_score int,
+    views int,
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
+);
+
+CREATE INDEX IX_Len_jeopardy ON jeopardy(length ASC);
+CREATE INDEX IX_Col1_jeopardy ON jeopardy(col1 ASC);
+CREATE INDEX IX_Col2_jeopardy ON jeopardy(col2 ASC);
+CREATE INDEX IX_Col3_jeopardy ON jeopardy(col3 ASC);
+CREATE INDEX IX_Col4_jeopardy ON jeopardy(col4 ASC);
+CREATE INDEX IX_Col5_jeopardy ON jeopardy(col5 ASC);
+CREATE INDEX IX_Col6_jeopardy ON jeopardy(col6 ASC);
+CREATE INDEX IX_Col7_jeopardy ON jeopardy(col7 ASC);
+CREATE INDEX IX_Col8_jeopardy ON jeopardy(col8 ASC);
+CREATE INDEX IX_Col9_jeopardy ON jeopardy(col9 ASC);
+CREATE INDEX IX_Col10_jeopardy ON jeopardy(col10 ASC);
+CREATE INDEX IX_Col11_jeopardy ON jeopardy(col11 ASC);
+CREATE INDEX IX_Col12_jeopardy ON jeopardy(col12 ASC);
+CREATE INDEX IX_Col13_jeopardy ON jeopardy(col13 ASC);
+CREATE INDEX IX_Col14_jeopardy ON jeopardy(col14 ASC);
+CREATE INDEX IX_Col15_jeopardy ON jeopardy(col15 ASC);
+
+create table fortune (
+	entry text not null primary key,
+	display_text text,
+    data_source_score int,
+    views int,
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
+);
+
+CREATE INDEX IX_Len_fortune ON fortune(length ASC);
+CREATE INDEX IX_Col1_fortune ON fortune(col1 ASC);
+CREATE INDEX IX_Col2_fortune ON fortune(col2 ASC);
+CREATE INDEX IX_Col3_fortune ON fortune(col3 ASC);
+CREATE INDEX IX_Col4_fortune ON fortune(col4 ASC);
+CREATE INDEX IX_Col5_fortune ON fortune(col5 ASC);
+CREATE INDEX IX_Col6_fortune ON fortune(col6 ASC);
+CREATE INDEX IX_Col7_fortune ON fortune(col7 ASC);
+CREATE INDEX IX_Col8_fortune ON fortune(col8 ASC);
+CREATE INDEX IX_Col9_fortune ON fortune(col9 ASC);
+CREATE INDEX IX_Col10_fortune ON fortune(col10 ASC);
+CREATE INDEX IX_Col11_fortune ON fortune(col11 ASC);
+CREATE INDEX IX_Col12_fortune ON fortune(col12 ASC);
+CREATE INDEX IX_Col13_fortune ON fortune(col13 ASC);
+CREATE INDEX IX_Col14_fortune ON fortune(col14 ASC);
+CREATE INDEX IX_Col15_fortune ON fortune(col15 ASC);
+
+create table twitter (
+	entry text not null primary key,
+	display_text text,
+    data_source_score int,
+    views int,
+    length int,
+    col1 char(1),
+    col2 char(1),
+    col3 char(1),
+    col4 char(1),
+    col5 char(1),
+    col6 char(1),
+    col7 char(1),
+    col8 char(1),
+    col9 char(1),
+    col10 char(1),
+    col11 char(1),
+    col12 char(1),
+    col13 char(1),
+    col14 char(1),
+    col15 char(1)
+);
+
+CREATE INDEX IX_Len_twitter ON twitter(length ASC);
+CREATE INDEX IX_Col1_twitter ON twitter(col1 ASC);
+CREATE INDEX IX_Col2_twitter ON twitter(col2 ASC);
+CREATE INDEX IX_Col3_twitter ON twitter(col3 ASC);
+CREATE INDEX IX_Col4_twitter ON twitter(col4 ASC);
+CREATE INDEX IX_Col5_twitter ON twitter(col5 ASC);
+CREATE INDEX IX_Col6_twitter ON twitter(col6 ASC);
+CREATE INDEX IX_Col7_twitter ON twitter(col7 ASC);
+CREATE INDEX IX_Col8_twitter ON twitter(col8 ASC);
+CREATE INDEX IX_Col9_twitter ON twitter(col9 ASC);
+CREATE INDEX IX_Col10_twitter ON twitter(col10 ASC);
+CREATE INDEX IX_Col11_twitter ON twitter(col11 ASC);
+CREATE INDEX IX_Col12_twitter ON twitter(col12 ASC);
+CREATE INDEX IX_Col13_twitter ON twitter(col13 ASC);
+CREATE INDEX IX_Col14_twitter ON twitter(col14 ASC);
+CREATE INDEX IX_Col15_twitter ON twitter(col15 ASC);

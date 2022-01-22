@@ -3,6 +3,7 @@ import SqlServerDataDao from '@daos/SqlServerDataDao';
 import { Entry } from '@entities/Entry';
 import { deepClone, mapKeys } from '@shared/utils';
 import { Request, Response } from 'express';
+import { writeFileSync } from 'fs';
 import StatusCodes from 'http-status-codes';
 import LineByLineReader from 'line-by-line';
 import { getHtmlPage, getHtmlString } from 'src/sources/utils';
@@ -351,6 +352,337 @@ export async function loadHusic(req: Request, res: Response) {
             for (let i = 0; i < entries.length; i+= batchSize) {
                 let slice = entries.slice(i, i + batchSize);
                 await dataDao.addDataSourceEntries("Husic", slice);
+                if (i % 10_000 === 0)
+                    console.log(i);
+            }
+        });
+    }
+    catch(ex) {
+        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
+}
+
+export async function scrapeJArchive(req: Request, res: Response) {
+    let seasons = ["trebekpilots", "superjeopardy", "goattournament"];
+    for (let i = 1; i <= 38; i++) {
+        seasons.push(i.toString());
+    }
+
+    let answerMap = new Map<string, [string, number]>();
+
+    function insertAnswer(answer: string) {
+        let answers = [] as string[];
+        let match1 = /^(.*) \(or (.*)\)$/.exec(answer);
+        let match2 = /^(.*) & (.*)$/.exec(answer);
+        if (match1) {
+            insertAnswer(match1[1]);
+            insertAnswer(match1[2]);
+        }
+        else if (match2) {
+            insertAnswer(match2[1]);
+            insertAnswer(match2[2]);
+        }
+        else {
+            if (answer.startsWith("the ")) answer = answer.substring(4);
+            if (answer.startsWith("a ") && !answer.startsWith("a la ")) answer = answer.substring(2);
+            if (answer.startsWith("an ")) answer = answer.substring(3);
+            answer = answer.replace(/[()"]/g, "");
+            let nAnswer = answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            let normalized = nAnswer.toUpperCase().replace(/[^0-9A-Z]/g, "");
+            if (normalized.length === 0) return;
+            if (answerMap.has(normalized)) {
+                answerMap.get(normalized)![1]++;
+            }
+            else {
+                answerMap.set(normalized, [answer, 1]);
+            }
+        }
+    }
+
+    try {
+        for (let season of seasons) {
+            let seasonUrl = `https://j-archive.com/showseason.php?season=${season}`;
+            let parsedHtml = await getHtmlPage(seasonUrl);
+            console.log("Season: " + season);
+
+            let gameLinks = parsedHtml.querySelectorAll("a[href*='game_id']");
+            let i = 0;
+            for (let link of gameLinks) {
+                i++;
+                console.log("Game: " + i.toString());
+                let gameHtml = await getHtmlPage(link.getAttribute("href")!.replace("showgame", "showgameresponses"));
+                let answers = gameHtml.querySelectorAll(".correct_response").map(x => x.innerText);
+                for (let answer of answers) {
+                    insertAnswer(answer.trim());
+                }
+            }
+        }
+
+        let outputLines = [] as string[];
+        for (let key of mapKeys(answerMap).sort()) {
+            let value = answerMap.get(key)!;
+            outputLines.push(`${key},"${value[0]}",${value[1].toString()}`);
+        }
+
+        writeFileSync("C:\\Users\\ben_z\\Downloads\\JArchive.txt", outputLines.join("\n"));
+
+        return res.status(StatusCodes.OK).json("{'message': 'Success'}");
+    }
+    catch(ex) {
+        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
+}
+
+export async function loadJArchive(req: Request, res: Response) {
+    let filePath = "C:\\Users\\ben_z\\Downloads\\JArchive.txt";
+    let entries = [] as Entry[];
+    let i = 0;
+    
+    try {
+        let lr = new LineByLineReader(filePath);
+        lr.on('error', function (err) {
+            console.log("ERROR: " + err);
+        });
+        
+        lr.on('line', (line) => {
+            let match = /^([A-Z]{3,21}),"(.+)",([0-9]+)/.exec(line)!;
+            if (!match) return;
+            let entry = {
+                entry: match[1].toUpperCase(),
+                displayText: match[2],
+                dataSourceScore: +match[3],
+            } as Entry;
+
+            entries.push(entry);
+        });
+
+        lr.on('end', async () => {
+            let batchSize = 1_000;
+
+            for (let i = 0; i < entries.length; i+= batchSize) {
+                let slice = entries.slice(i, i + batchSize);
+                await dataDao.addDataSourceEntries("Jeopardy", slice);
+                if (i % 10_000 === 0)
+                    console.log(i);
+            }
+        });
+    }
+    catch(ex) {
+        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
+}
+
+export async function scrapeWheelOfFortune(req: Request, res: Response) {
+    let seasons = ["primetime", "daytime", "kids", "64", "junior", "nesgt"];
+    for (let i = 1; i <= 39; i++) {
+        seasons.push(i.toString());
+    }
+
+    let answerMap = new Map<string, [string, number]>();
+
+    function insertAnswer(answer: string) {
+        let words = answer.split(' ');
+        if (["A", "AN", "THE"].includes(words[0]))
+            words.shift();
+        let i = 0;
+        for (let word of words) {
+            let entry = word;
+            let j = i;
+            while (j < words.length) {
+                let normalized = entry.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toUpperCase().replace(/[^0-9A-Z]/g, "");
+                let displayText = entry.toLowerCase().replace("&amp;", "and");
+
+                if (answerMap.has(normalized)) {
+                    answerMap.get(normalized)![1]++;
+                }
+                else {
+                    answerMap.set(normalized, [displayText, 1]);
+                }
+
+                j++;
+                if (j < words.length) {
+                    entry += " " + words[j];
+                }
+                else if (i===0){
+                    answerMap.get(normalized)![1] += 4;
+                }
+            }
+            i++;
+        }
+    }
+
+    try {
+        for (let season of seasons) {
+            let seasonUrl = `https://buyavowel.boards.net/page/compendium${season}`;
+            let parsedHtml = await getHtmlPage(seasonUrl);
+            console.log("Season: " + season);
+
+            let answerRows = parsedHtml.querySelectorAll("#zone_2 tr");
+            let i = 0;
+            for (let row of answerRows) {
+                i++;
+                if (i === 1) continue;
+
+                let answer = row.querySelectorAll("td")[0].innerText;
+                insertAnswer(answer.trim());
+            }
+        }
+
+        let outputLines = [] as string[];
+        for (let key of mapKeys(answerMap).sort()) {
+            let value = answerMap.get(key)!;
+            outputLines.push(`${key},"${value[0]}",${value[1].toString()}`);
+        }
+
+        writeFileSync("C:\\Users\\ben_z\\Downloads\\WheelOfFortune.txt", outputLines.join("\n"));
+
+        return res.status(StatusCodes.OK).json("{'message': 'Success'}");
+    }
+    catch(ex) {
+        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
+}
+
+export async function loadFortune(req: Request, res: Response) {
+    let filePath = "C:\\Users\\ben_z\\Downloads\\WheelOfFortune.txt";
+    let entries = [] as Entry[];
+    let i = 0;
+    
+    try {
+        let lr = new LineByLineReader(filePath);
+        lr.on('error', function (err) {
+            console.log("ERROR: " + err);
+        });
+        
+        lr.on('line', (line) => {
+            let match = /^([A-Z]{3,21}),"(.+)",([0-9]+)/.exec(line)!;
+            if (!match) return;
+            let entry = {
+                entry: match[1].toUpperCase(),
+                displayText: match[2],
+                dataSourceScore: +match[3],
+            } as Entry;
+
+            entries.push(entry);
+        });
+
+        lr.on('end', async () => {
+            let batchSize = 1_000;
+
+            for (let i = 0; i < entries.length; i+= batchSize) {
+                let slice = entries.slice(i, i + batchSize);
+                await dataDao.addDataSourceEntries("Fortune", slice);
+                if (i % 10_000 === 0)
+                    console.log(i);
+            }
+        });
+    }
+    catch(ex) {
+        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
+}
+
+export async function scrapeTwitterTrends(req: Request, res: Response) {
+    let years = [] as number[];
+    for (let i = 2016; i <= 2022; i++) {
+        years.push(i);
+    }
+
+    let months = [] as number[];
+    for (let i = 1; i <= 12; i++) {
+        months.push(i);
+    }
+
+    let daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    let answerMap = new Map<string, [string, number]>();
+
+    function insertAnswer(answer: string) {
+        if (answer.startsWith("#")) answer = answer.substring(1);
+
+        let normalized = answer.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .toUpperCase().replace(/[^0-9A-Z]/g, "");
+        let displayText = answer.replace("&amp;", "and");
+
+        if (answerMap.has(normalized)) {
+            answerMap.get(normalized)![1]++;
+        }
+        else {
+            answerMap.set(normalized, [displayText, 1]);
+        }
+    }
+
+    try {
+        let i = 0;
+        for (let year of years) {
+            for (let month of months) {
+                let dayCount = (year % 4 === 0 && month === 2) ? 29 : daysPerMonth[month-1];
+                for (let day = 1; day <= dayCount; day++) {
+                    if (year === 2016 && month < 4) continue;
+                    if (year === 2022 && (month > 1 || day > 21)) continue;
+                    //if (i > 1000) break;
+
+                    let url = `https://us.trend-calendar.com/trend/${year.toString()}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}.html`;
+                    let parsedHtml = await getHtmlPage(url);
+                    console.log(url);
+
+                    let results = parsedHtml.querySelectorAll(".readmoretable_line a");
+                    for (let result of results) {
+                        let answer = result.innerText;
+                        insertAnswer(answer.trim());
+                        i++;
+                    }
+                }
+            }
+        }
+
+        let outputLines = [] as string[];
+        for (let key of mapKeys(answerMap).sort()) {
+            let value = answerMap.get(key)!;
+            outputLines.push(`${key},"${value[0]}",${value[1].toString()}`);
+        }
+
+        writeFileSync("C:\\Users\\ben_z\\Downloads\\TwitterTrends.txt", outputLines.join("\n"));
+
+        return res.status(StatusCodes.OK).json("{'message': 'Success'}");
+    }
+    catch(ex) {
+        return res.status(StatusCodes.OK).json(`{'message': 'Failed: ${ex}'}`);
+    }
+}
+
+export async function loadTwitter(req: Request, res: Response) {
+    let filePath = "C:\\Users\\ben_z\\Downloads\\TwitterTrends.txt";
+    let entries = [] as Entry[];
+    let i = 0;
+    
+    try {
+        let lr = new LineByLineReader(filePath);
+        lr.on('error', function (err) {
+            console.log("ERROR: " + err);
+        });
+        
+        lr.on('line', (line) => {
+            let match = /^([A-Z0-9]{3,21}),"(.+)",([0-9]+)/.exec(line)!;
+            if (!match) return;
+
+            let entry = {
+                entry: match[1].toUpperCase(),
+                displayText: match[2],
+                dataSourceScore: +match[3],
+            } as Entry;
+
+            entries.push(entry);
+        });
+
+        lr.on('end', async () => {
+            let batchSize = 1_000;
+
+            for (let i = 0; i < entries.length; i+= batchSize) {
+                let slice = entries.slice(i, i + batchSize);
+                await dataDao.addDataSourceEntries("Twitter", slice);
                 if (i % 10_000 === 0)
                     console.log(i);
             }
