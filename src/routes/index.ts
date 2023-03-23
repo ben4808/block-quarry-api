@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { generateAnagrams } from './Anagrams';
+import { generateAnagrams, generateAnagramsCrossword } from './Anagrams';
 import { discoverEntries, exploredQuery, frontierQuery, getAllExplored } from './BlockQuarry';
 import { loadExplored, loadFortune, loadGinsberg, loadHusic, loadJArchive, loadNewspapers, loadPodcasts, loadTwitter, scrapeCrosswordTracker, scrapeJArchive, scrapeTwitterTrends, scrapeWheelOfFortune } from './Data';
 import { getPuzzlesByAuthor, getPuzzlesByPublication, getPuzzlesOfWeek } from './Puzzles';
@@ -8,6 +8,7 @@ import { scrapePuzzles } from './Scrapers';
 const apiRouter = Router();
 
 apiRouter.get('/anagrams', generateAnagrams);
+apiRouter.get('/crosswordAnagrams', generateAnagramsCrossword);
 
 // Scraper-route
 // apiRouter.get('/scrape', scrapePuzzles);

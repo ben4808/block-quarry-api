@@ -38,6 +38,40 @@ export async function generateAnagrams(req: Request, res: Response) {
     return res.send(Buffer.from(results.map(res => `${res[0]}, ${res[1]}<br>`).join('')));
 }
 
+export async function generateAnagramsCrossword(req: Request, res: Response) {
+    let buckets = new Map<string, string[]>();
+
+    let entries = await loadExplored();
+    let results = [] as string[][];
+
+    for (let entry of entries) {
+        let word = entry.entry;
+        let bucket = getBucket(word);
+        if (buckets.has(bucket))
+            buckets.get(bucket)!.push(entry.displayText);
+        else
+            buckets.set(bucket, [entry.displayText]);
+    }
+
+    for (let entry of entries) {
+        if (entry.entry.length < 11)
+            continue;
+
+        let word = entry.entry;
+        let bucket = getBucket(word);
+        let bucketResults = buckets.get(bucket)!;
+
+        if (bucketResults.length > 2) {
+            for (let res of bucketResults) {
+                results.push([entry.displayText, res]);
+            }
+        }
+    }
+
+    res.set('Content-Type', 'text/html');
+    return res.send(Buffer.from(results.map(res => res[1].join(", ") + `<br>`).join('')));
+}
+
 function getBucket(input: string, addedLetter?: string): string {
     let letters = new Map<string, number>();
     let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
